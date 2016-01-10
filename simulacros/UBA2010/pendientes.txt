@@ -1,0 +1,8 @@
+Problema A
+Problema B
+Problema C
+Problema D (WA)
+Problema E
+Problema G
+Problema I
+Problema J
