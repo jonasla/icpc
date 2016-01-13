@@ -178,7 +178,15 @@ Hay que decidir la menor cantidad de vértices que se pueden remover, para que
 con los vértices restantes se forme un polígono regular. En caso de no ser 
 posible formar un polígono regular removiendo vértices hay que imprimir -1.
 
-Resolución:
+Resolución: Lo primero que hay que notar es que la suma de los arcos dados 
+permanece invariante al remover un vértice. Luego, si el polígono que se 
+forma al final tiene q lados de largo l, tenemos que sumaArcos = q*l, de 
+donde se deduce que q divide a sumaArcos. Además, q <= n, entonces podemos 
+iterar desde q = n hasta que q sea menor que 3, y si q divide a suma debemos 
+testear si es posible armar un polígono de largo l = sumaArcos/q.
+Para hacer este testeo lo que hacemos es calcular las sumas parciales de todos 
+los arcos módulo l y contar las ocurrencias de cada resto. Si existe un resto que 
+aparece más de q veces, entonces se puede, sino no.
 
 
 

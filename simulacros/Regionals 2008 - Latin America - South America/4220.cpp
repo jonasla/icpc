@@ -1,46 +1,31 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <map>
 
 
 #define forn(i,n) for(int (i) = 0; (i) < (int)(n); i++ )
 #define forsn(i,s,n) for(int i=(s);i<(int)(n); i++)
+#define debug(x) cout << #x << " = "  << x << endl
 
 
 typedef long long tint;
 using namespace std;
 
-tint primerBolsa(tint comienzo, tint lado, vector<tint> &arco)
+bool sePuede (tint lado, vector<tint> &arco, tint qarcos)
 {
 	tint n = arco.size();
-	tint ultimo = comienzo;
-	tint bolsa = 0;
-	while(bolsa < lado)
+	map<tint, tint> resto;
+	tint suma = 0;
+	forn(i,n)
 	{
-		bolsa += arco[ultimo];
-		ultimo = (ultimo + 1) % n;
+		suma = (suma + arco[i]) % lado;
+		resto[suma]++;
 	}
-	if (bolsa == lado)
-		return ((ultimo - 1) + n) % n;
-	else
-		return ((ultimo - 2) + n) % n;
-}
-
-bool sePuede (tint comienzo, tint lado, vector<tint> &arco)
-{
-	tint n = arco.size();
-	tint usados = 0;
-	tint bolsa = 0;
-	tint i = comienzo;
-	while(usados < n && bolsa <= lado)
-	{
-		if (bolsa == lado)
-			bolsa = 0;
-		bolsa += arco[i];
-		i = (i+1) % n;
-		usados++;
-	}
-	return (usados == n);
+	tint maxi = -2;
+	for(auto r : resto)
+		maxi = max(maxi,r.second);
+	return (maxi >= qarcos);
 }
 
 int main()
@@ -56,28 +41,12 @@ int main()
 			suma += arco[i];
 		}
 		bool gane = false;
-		tint qarcos = n+1;
-		while (qarcos--){
-			if(qarcos < 3 || (suma % qarcos) != 0) {
-				continue;
-			}
-			tint lado = suma/qarcos, comienzo = 0;
-			tint bolsaInicial = primerBolsa(comienzo,lado,arco);
-			while ((bolsaInicial < comienzo) or (comienzo == 0 && comienzo <= bolsaInicial))
+		for(tint qarcos = n; qarcos >= 3; qarcos--)
+		{
+			if (suma % qarcos == 0 && sePuede(suma/qarcos,arco,qarcos))
 			{
-				if (sePuede(comienzo,lado,arco))
-				{
-					gane = true;
-					break;
-				}
-				else
-					comienzo = (((comienzo - 1) % n) + n ) % n;
-				bolsaInicial = primerBolsa(comienzo,lado,arco);
-			}
-			
-			if (gane)
-			{
-				cout << n-qarcos << endl;
+				gane = true;
+				cout << n - qarcos << endl;
 				break;
 			}
 		}
@@ -86,3 +55,4 @@ int main()
 	}
 	return 0;
 }
+
