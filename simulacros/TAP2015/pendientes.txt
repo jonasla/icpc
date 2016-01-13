@@ -1,5 +1,4 @@
 Problema A
-Problema B
 Problema E
 Problema F
 Problema G
