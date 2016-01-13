@@ -1,123 +1,125 @@
 #include <iostream>
-#include <deque>
+#include <stdio.h>
+#include <queue>
 #include <vector>
 #include <algorithm>
-using namespace std;
 
 #define forn(i,n) for(int i=0;i<(int)n;i++)
+#define debug(x) cout << #x << " = "  << x << endl
+#define dforn(i,n) for(int i=(n)-1; i >=0; i--)
+
+using namespace std;
 
 struct carta{
-	int r;
-	char s;
-	bool done;
-	bool usada;
-	carta(int a, char b){r=a;s=b;done=false;usada=false;jugada=false;}
-	bool jugada;
+	int r,s; //rank and suit; suit C < D < H < S
+	bool jugada,efectoRealizado;
+	carta();
+	carta(int a,int b){r=a;s=b;jugada=false;efectoRealizado=false;}
 };
-carta actual(1,'a');
-deque<carta>sPile;
 
-bool operator<(const carta &a, const carta &b){
-	if(a.r<b.r || (a.r==b.r && a.s<b.s)|| a.jugada) return true;
-	else return false;
+bool operator<(const carta &lC, const carta &rC){
+		return (lC.r<rC.r || (lC.r==rC.r && lC.s<rC.s));
 }
+
+istream & operator >>(istream &inpu, carta &c){
+    int r,s; char tmp;
+    cin >> r >> tmp;
+            switch(tmp){
+                case 'C': s=1;break;
+                case 'D': s=2;break;
+                case 'H': s=3;break;
+                case 'S': s=4;break;
+                default: ;
+            }
+    c = carta(r, s);
+    return inpu;
+}
+carta actual;
+queue<carta> deck;
+bool clockwise = true;
 
 struct jugador{
 	vector<carta> mano;
-	bool play;
-	int c;
-	
-	jugador() {play=true;c=0;}
-	
-	bool puedoJugar(){
-		sort(mano.begin(),mano.end());
-		int n = mano.size();
-		for(int i=n-1;i>=0;i--)
-			if(mano[i].r==actual.r || mano[i].s==actual.s) {
-				c = i;
-				return mano[i].jugada;
+	jugador(){mano.clear();puedoJugar=true;}
+	bool puedoJugar;
+	void levantar(int n){forn(i,n){mano.push_back(deck.front());deck.pop();}}
+	bool jugar(){
+		if(!actual.efectoRealizado){
+			actual.efectoRealizado = true;
+			switch(actual.r){
+				case 1: //cout <<"levanto 1"<<endl;
+					levantar(1);puedoJugar=false;break;
+				case 7: //cout <<"levanto 2"<<endl;
+					levantar(2);puedoJugar=false;break;
+				case 11: puedoJugar=false;break;
+				case 12: clockwise=!clockwise;puedoJugar=true;break;
+				default: puedoJugar = true;
 			}
+		}
+		else
+			puedoJugar = true;
+		if(puedoJugar){
+			//cout << "puedo jugar"<<endl;
+			sort(mano.begin(),mano.end());
+			int n = mano.size();
+			forn(i,n){
+				//cout <<"\tchequear carta "<< mano[n-i-1].r << " "<<mano[n-i-1].s<<endl;
+				if(mano[n-i-1].r==actual.r || mano[n-1-i].s==actual.s){
+					//mano[n-i-1].jugada = true;
+					actual = mano[n-i-1];
+					mano.erase(mano.begin()+n-i-1);
+					//cout << "tire carta " << actual.r <<" "<<actual.s<<endl;
+					if(actual.r==12){clockwise=!clockwise;actual.efectoRealizado=true;}
+					return mano.size()==0;
+				}
+			}
+			//cout << "levanto 1"<<endl;
+			carta tmp = deck.front();deck.pop();
+			if(tmp.r==actual.r || tmp.s==actual.s){//cout << "la tiro"<<endl;
+				actual = tmp;if(actual.r==12){clockwise=!clockwise;actual.efectoRealizado=true;}}
+			else mano.push_back(tmp);
+		}
+		//else
+			//cout << "no puedo jugar"<<endl;
 		return false;
 	}
-	bool gano(){bool gane=true;forn(i,mano.size())if(!mano[i].jugada)gane=false;return gane;}
-	carta jugar(){mano[c].jugada = true;return mano[c];}
-	void levantar(int k){forn(i,k){mano.push_back(sPile.front());sPile.pop_front();}}
 };
-bool play;
-bool clockwise=true;
-
-void efectoCartaActual(carta &actual, jugador &j){
-	actual.done = true;
-	switch(actual.r){
-		case 1: 
-			j.levantar(1);
-			j.play = false;
-			break;
-		case 7: 
-			j.levantar(2);
-			j.play=false;
-			break;
-		case 11: 
-			j.play = false;
-			break;
-		case 12: 
-			clockwise = !clockwise; 
-			j.play = true;
-			break;
-		default: 
-			//cout << "no hice nada"<<endl;
-			j.play = true;
-			break;
-	}
-}
 
 
 int main(){
+	#ifdef ACMTUYO
+		freopen("19.in","r",stdin);
+	#endif
 	int p,m,n;
-	while(cin >> p >> m >> n && p!=0){
-	bool termino=false;
-	clockwise=true;
-	sPile.clear();
-	vector<jugador> jugadores(10);
 	
-	int r;char s;
-	forn(i,p)forn(j,m){cin >> r >> s;jugadores[i].mano.push_back(carta(r,s));}
-	forn(i,n-m*p){cin >> r >> s;sPile.push_back(carta(r,s));}
-	
-	
-	actual = sPile.front();sPile.pop_front();
-	//cout <<"carta actual:" <<actual.r<<" "<<actual.s<<endl;
-	int k = 0;
-	int ganador;
-	while(!termino){
-		//cout << "jugador "<<k<<endl;
-		if(!actual.done){
-			//cout << "efct carta act\n";
-			efectoCartaActual(actual,jugadores[k]);
-			//cout << "efct carta act done\n";
-		}else jugadores[k].play=true;
-		if(jugadores[k].play){
-			//cout << "puedo jugar 1"<<endl;
-			if(!jugadores[k].puedoJugar()){
-				actual = jugadores[k].jugar();
-				//cout << "juego la carta "<<actual.r<<" "<<actual.s<<endl;
-				termino = jugadores[k].gano();
-				if(termino)ganador =k;
-			}
-			else{
-				carta l = sPile.front();
-				sPile.pop_front();
-				if(l.r==actual.r || l.s==actual.s) actual=l;
-				else jugadores[k].mano.push_back(l);
+	while(cin >>p>>m>>n && p!=0){
+		vector<jugador> jugadores(10);
+		deck = queue<carta>();
+		forn(i,p)forn(j,m){	//llenamos manos de los jugadores
+			carta c;
+			cin >> c;
+			jugadores[i].mano.push_back(c);
+		}
+		forn(i,n-m*p){	//llenamos el mazo
+			carta c;
+			cin >> c;
+			deck.push(c);
+		}
+		bool end = false;
+		clockwise = true;
+		int k = 0;
+		actual = deck.front(); deck.pop();
+		
+		while(!end){
+			//cout << "jugador "<<k<<endl;
+			end = jugadores[k].jugar();
+			
+			if(!end){
+				if(clockwise)k++;
+				else k--;
+				k = (k%p+p)%p;
 			}
 		}
-		//else cout <<"no puedo jugar"<<endl;
-		if(clockwise)k++;
-		else k--;
-		
-		k = (k%p+p)%p;
+		cout << k+1 << endl;
 	}
-	cout << ganador+1<<endl;
-	}
-	return 0;
-}
+}	
