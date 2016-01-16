@@ -1,111 +1,64 @@
-#define forn(i,n) for(int i=0; i<(int)(n); i++)
-
-#define forsn(i,s,n) for(int i=(s); i<(int)(n); i++)
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <utility>
 #include <queue>
+#include <string>
+
+#define forn(i,n) for(int i=0; i<(int)(n); i++)
+#define forsn(i,s,n) for(int i=(s); i<(int)(n); i++)
+#define pb push_back
 
 using namespace std;
 
-vector<int> bfs (vector<vector<int>> &lista, int nodoInicial)
-{
-	int n = lista.size(),t;
-	queue<int> cola;
-	vector<int> distancias (n,n);
-	cola.push(nodoInicial);
-	distancias[nodoInicial] = 0;
-	while (!cola.empty())
-	{
-		t = cola.front();
-		cola.pop();
-		forn(i,lista[t].size())
-		{
-			if(distancias[lista[t][i]] == n)
-			{
-				distancias[lista[t][i]] = distancias[t]+1;
-				cola.push(lista[t][i]);
-			}
-		}
-	}
-	return distancias;
-}
+typedef vector<int> vi;
 
-int main()
-{
-	string s;
-	cin >> s;
-	int test = 1;
-	while(s != "#")
-	{
-		int level = 0;
-		int n = s.size();
-		vector<int> arista;
-		int qnodos = 0;
-		forn(i,n)
-			if (s[i] == 'd')
-				qnodos++;
-		qnodos++;
-		arista.push_back(0);
-		int maxlevel = 0;
-		int nodoActual = 0;
-		int nodoAnterior = 0;
-		int ultimoNodoVisitado = 0;
+int main(){
+
+	string arb;
+	int T = 1;
+	while(cin >> arb && arb[0] != '#'){
+		int S = (int)arb.size();
+		int N = S/2;
 		
-		vector<vector<int> > ladj (qnodos);
-		vector<vector<int> > llevel (qnodos);
-		forn(i,n)
-		{
-			if (s[i] == 'd')
-			{
-				level++;
-				maxlevel = max(maxlevel,level);
-				nodoActual = ++ultimoNodoVisitado;
-				arista.push_back(nodoActual);
-				if (llevel[level].empty())
-				{
-					ladj[nodoActual].push_back(nodoAnterior);
-					ladj[nodoAnterior].push_back(nodoActual);
-				}
-				llevel[level].push_back(nodoActual);
-			}
-			else
-			{
-				level--;
-				nodoActual = nodoAnterior;
-				nodoAnterior = arista[level-1];
+		int maxLvl = 0;
+		int maxLvlNew = 0;
+		
+		vi padres(N, -1);
+		vi lvl(N, 0);
+		vi lvlNew(N, 0);
+		vector<vi> hijos(N, vi());
+		
+		int currP = 0;
+		int currN = 1;
+		padres[0] = 0;
+		lvl[0] = 0;
+		lvlNew[0] = 0;
+		
+		forn(i,S){
+			if(arb[i] == 'd'){
+				padres[currN] = currP;
+				hijos[currP].pb(currN);
+				lvl[currN] = lvl[currP]+1;
 				
-			}
-			int k = 0;
-			while(!llevel[k].empty())
-			{
-				int p = llevel[k].size();
-				if (p > 1)
-				{
-					forn(j,p-1)
-					{
-						ladj[llevel[k][j]].push_back(llevel[k][j+1]);
-						ladj[llevel[k][j+1]].push_back(llevel[k][j]);
-					}
+				if(hijos[currP].size() == 1){
+					lvlNew[currN] = lvlNew[currP] + 1;
+				}else{
+					lvlNew[currN] = lvlNew[ hijos[currP][hijos[currP].size()-2] ] + 1;
 				}
-				k++;
+				maxLvl = max(maxLvl, lvl[currN]);
+				maxLvlNew = max(maxLvlNew, lvlNew[currN]);
+				
+				currP = currN;
+				currN++;
+			}else if(arb[i] == 'u'){
+				currP = padres[currP];
 			}
-			
-		}	
-		vector<int> d = bfs(ladj,0);
-		forn(i,qnodos)
-		{
-			forn(j,ladj[i].size())
-				cout << ladj[i][j] << " ";
-			cout << endl;
 		}
-		int distFinal = *max_element(d.begin(),d.end());
-		cin >> s;
-		cout << "Tree " << test << ": " << maxlevel << " => " << distFinal << endl;
-		test++;
 		
+		cout << "Tree " << T << ": " << maxLvl << " => " << maxLvlNew << endl;
+		T++;
 	}
+
 	return 0;
 }
