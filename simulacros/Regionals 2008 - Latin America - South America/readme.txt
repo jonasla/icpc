@@ -21,7 +21,15 @@ Resolución:
 Descripción: Te dan una igualdad de dos expresiones y hay que decidir para
 qué bases de numeración la relación es válida.
 
-Resolución:
+Resolución: La idea es escribir cada una de las expresiones en base "b"
+genérica. Eso te da un polinomio que depende de "b" de cada lado. Si 
+pasamos restando, la igualdad dada vale para b si y solo si b es una 
+raíz del polinomio. Luego, resta encontrar las raíces enteras del 
+polinomio que son mayores o iguales que 2 y mayores que la mayor cifra 
+que aparece en alguna de las 2 expresiones originales. Para encontrar 
+las raíces podemos probar todos los divisores del término independiente 
+por Gauss (notar que para calcular los divisores solo hace falta iterar 
+hasta la raíz del término independiente).
 
 
 
@@ -186,7 +194,7 @@ iterar desde q = n hasta que q sea menor que 3, y si q divide a suma debemos
 testear si es posible armar un polígono de largo l = sumaArcos/q.
 Para hacer este testeo lo que hacemos es calcular las sumas parciales de todos 
 los arcos módulo l y contar las ocurrencias de cada resto. Si existe un resto que 
-aparece más de q veces, entonces se puede, sino no.
+aparece q veces o más, entonces se puede, sino no.
 
 
 
