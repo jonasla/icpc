@@ -115,12 +115,12 @@ for link in links:  # Si se quiere comenzar a descargar desde las Regionales del
 								res = requests.get(url + linkProblem.attrs['href']) 
 								soupPDF = bs4.BeautifulSoup(res.text) 
 								if ( len(soupPDF.select('h1')) == 0 and res.headers["Content-Length"] != "0"):
-									pdf = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,problem),"wb") 
+									pdf = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,problem + ".pdf"),"wb") 
 									for chunk in res.iter_content(100000): 
 										pdf.write(chunk)
 									pdf.close()	
-									inpu = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,problem),"rb") 
+									inpu = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,problem + ".pdf"),"rb") 
 									combined.append(inpu) 
-				outpu = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,contestsYear + " - " + regional),"wb")
+				outpu = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,contestsYear + " - " + regional + ".pdf"),"wb")
 				combined.write(outpu) 
 				print " - - - - "
