@@ -1,6 +1,6 @@
 ###################################################################################
 #                                                                      	          #
-#						getPDF version 1.2.5                           	          #
+#						getPDF version 1.3                           	          #
 #																		          #
 ###################################################################################
 #                                                        				          #
@@ -83,7 +83,7 @@ os.makedirs('Live Archive')
 page = requests.get(rootUrl) 
 soup = bs4.BeautifulSoup(page.text) 
 links = soup.select('a') 
-for link in links:  # Si se quiere comenzar a descargar desde las Regionales del anho yyyy debemos cambiar "links" por "links[20+(2015-yyyy):]" Y la carpeta Regionals yyyy no debe estar creada adentro de Live Archive.
+for link in links[28:]:  # Si se quiere comenzar a descargar desde las Regionales del anho yyyy debemos cambiar "links" por "links[20+(2015-yyyy):]" Y la carpeta Regionals yyyy no debe estar creada adentro de Live Archive.
 	if 'index' == link.attrs['href'][:5] and link.getText() != 'Root' and link.getText() != 'ICPC Archive Volumes': 
 		print "--------------\n--------------"
 		contestsYear = link.getText().replace("/"," - ")
@@ -93,7 +93,7 @@ for link in links:  # Si se quiere comenzar a descargar desde las Regionales del
 		pageYear = requests.get(url + link.attrs['href']) 
 		soupYear = bs4.BeautifulSoup(pageYear.text) 
 		linksYear = soupYear.select('a') 
-		for linkYear in linksYear: 
+		for linkYear in linksYear[39:]: 
 			if 'index' == linkYear.attrs['href'][:5] and linkYear.getText() != 'Root' and linkYear.getText() != link.getText(): 
 				regional = linkYear.getText().replace("/"," - ")
 				print regional
@@ -114,17 +114,13 @@ for link in links:  # Si se quiere comenzar a descargar desde las Regionales del
 							if ('.pdf' == linkProblem.attrs['href'][-4:]): 
 								res = requests.get(url + linkProblem.attrs['href']) 
 								soupPDF = bs4.BeautifulSoup(res.text) 
-								if ( len(soupPDF.select('h1')) == 0): 
+								if ( len(soupPDF.select('h1')) == 0 and res.headers["Content-Length"] != "0"):
 									pdf = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,problem),"wb") 
 									for chunk in res.iter_content(100000): 
-										pdf.write(chunk)				   
+										pdf.write(chunk)
 									pdf.close()	
 									inpu = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,problem),"rb") 
 									combined.append(inpu) 
 				outpu = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,contestsYear + " - " + regional),"wb")
 				combined.write(outpu) 
 				print " - - - - "
-		
-		
-
-
