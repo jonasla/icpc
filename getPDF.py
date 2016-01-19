@@ -83,7 +83,7 @@ os.makedirs('Live Archive')
 page = requests.get(rootUrl) 
 soup = bs4.BeautifulSoup(page.text) 
 links = soup.select('a') 
-for link in links[28:]:  # Si se quiere comenzar a descargar desde las Regionales del anho yyyy debemos cambiar "links" por "links[20+(2015-yyyy):]" Y la carpeta Regionals yyyy no debe estar creada adentro de Live Archive.
+for link in links:  # Si se quiere comenzar a descargar desde las Regionales del anho yyyy debemos cambiar "links" por "links[20+(2015-yyyy):]" Y la carpeta Regionals yyyy no debe estar creada adentro de Live Archive.
 	if 'index' == link.attrs['href'][:5] and link.getText() != 'Root' and link.getText() != 'ICPC Archive Volumes': 
 		print "--------------\n--------------"
 		contestsYear = link.getText().replace("/"," - ")
@@ -93,7 +93,7 @@ for link in links[28:]:  # Si se quiere comenzar a descargar desde las Regionale
 		pageYear = requests.get(url + link.attrs['href']) 
 		soupYear = bs4.BeautifulSoup(pageYear.text) 
 		linksYear = soupYear.select('a') 
-		for linkYear in linksYear[39:]: 
+		for linkYear in linksYear: 
 			if 'index' == linkYear.attrs['href'][:5] and linkYear.getText() != 'Root' and linkYear.getText() != link.getText(): 
 				regional = linkYear.getText().replace("/"," - ")
 				print regional
