@@ -152,8 +152,7 @@ else:
 		pageYear,soupYear,linksYear,contestsYear = getPageFromLink(url,linksRoot[19])
 		WFList = list(enumerate(linkFilt(linksYear,contestsYear)))
 		for i,linkYear in WFList:
-			pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,linkYear)
-			print i+1,"->",regional
+			print i+1,"->",linkYear.getText().replace("/", " - ")
 		print "(carga de lista completa)"
 		prueba = int(sys.stdin.readline())
 		pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,WFList[prueba-1][1])
@@ -167,8 +166,7 @@ else:
 		print "De que anho? (por favor, espere a que termine de cargar la lista)"
 		RegionalList = list(enumerate(linkFilt(linksRoot,"World Finals")))
 		for i,linkRoot in RegionalList:
-			pageYear,soupYear,linksYear,contestsYear = getPageFromLink(url,linkRoot)
-			print i+1,"->",contestsYear
+			print i+1,"->",linkRoot.getText().replace("/", " - ")
 		print "(carga de lista completa)"
 		anho = int(sys.stdin.readline())
 		pageYear,soupYear,linksYear,contestsYear = getPageFromLink(url,RegionalList[anho-1][1])
@@ -178,8 +176,7 @@ else:
 		print "Que region? (por favor, espere a que termine de cargar la lista)"
 		AreaList = list(enumerate(linkFilt(linksYear,contestsYear)))
 		for i, linkYear in AreaList:
-			pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,linkYear)
-			print i+1,"->",regional
+			print i+1,"->",linkYear.getText().replace("/"," - ")
 		print "(carga de lista completa)"
 		prueba = int(sys.stdin.readline())
 		pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,AreaList[prueba-1][1])
