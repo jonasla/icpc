@@ -10,7 +10,18 @@ Descripción: Te dan un grafo dirigido con N (2<= N <= 500) vértices y M
  y D (destino). El problema pide calcular el camino más corto de S a D que
  no utilicen aristas que estén en algún camino mínimo de S a D.
  
-Resolución:
+Resolución: La idea es que para cada nodo v entre S y D, un camino mínimo 
+que va de S a D y pasa por v se forma por un camíno mínimo de S a v, 
+concatenado con otro camino mínimo que va de v a D. Para resolver el problema 
+hacemos un Dijkstra que calcule para cada nodo la distancia y las aristas que 
+se usan para algún camino mínimo hasta v partiendo de S. Transponemos el 
+grafo y hacemos lo mismo para D. Luego, para cada nodo v, si el camino mínimo 
+entre S y v concatenado con el camino mínimo de v a D tiene el mismo largo que 
+el camino mínimo, entonces agregamos todas las aristas de esos caminos (que ya 
+fueron calculadas) a un conjunto de aristas prohibidas. Finalmente, corremos 
+un último Dijkstra, pero sin utilizar las aristas prohibidas.
+
+
 
 
 
