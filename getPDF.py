@@ -1,20 +1,20 @@
 ###################################################################################
 #                                                                      	          #
-#						getPDF version 1.3                           	          #
+#						getPDF version 2.0                           	          #
 #																		          #
 ###################################################################################
 #                                                        				          #
 #	Estado actual: (no pongo tildes porque arma quilombo)              	          #
-#		En la carpeta donde se situa el script genera una carpeta con  	          #
-#	el nombre "Live Archive" donde se comienzan a descargar todas las  	          #
-#	regionales/world finals que hay en Live Archive en formato de pdf. 	          #
-#	No se descargan aquellas regionales/world finals en las que el     	          #
-#	boton "PDF" de Live Archive no funciona (incluso cuando hay un pdf 	          #
-#	de menor calidad en la pagina del problema). Las regionales/ world 	          #
-#	finals se guardan en carpetas y subcarpetas con sus respectivos    	          #
-#	nombres adentro de la carpeta "Live Archive". Ademas de descargar  	          #
-#	un pdf por cada por cada problema, por cada regional/world final se	          #
-#	genera un pdf con todos los problemas de la prueba.                	          #
+#		Al comenzar se despliega un menu donde nos da a elegir entre              #
+#	descargar todo Live Archive o una Regional/World Final en particular.         #
+#		Si se opta por lo primero, en el directorio donde esta el script se       #
+#	crea una carpeta "Live Archive" donde se descargan todas las regionales       #
+#	y World Finals.                                                               #
+#		Si se opta por lo segundo, se despliega otro menu donde hay que           #
+#	indicar el anho y luego otro menu donde hay que elegir la region de la        #
+#	prueba. Una vez elegida la prueba, se crea una carpeta con el nombre          #
+#	de la prueba elegida y se procede a descargar un .pdf por problema como       #
+#	asi tambien un pdf con la concatenacion de todos los problemas.               #
 #	                                                                   	          #
 ###################################################################################
 #                                                                      	          #
@@ -24,6 +24,7 @@
 #		* En aquellos casos donde no hay pdf alguno documentar         	          #
 #		debidamente el hecho ocurrido. Por ejemplo con un archivo de   	          #
 #		texto que explique lo ocurrido.                                	          #
+#		                                                                          #
 #																	 	          #
 ###################################################################################
 #                                                                                 #
@@ -69,58 +70,126 @@
 
 
 
-import requests,os,bs4
+import requests,os,bs4,sys
 from PyPDF2 import PdfFileMerger
 
+def getPageFromUrl(url):
+	page = requests.get(url) 
+	soup = bs4.BeautifulSoup(page.text) 
+	links = soup.select('a') 
+	return [page,soup,links]
+
+def getPageFromLink(url,link):
+	name = link.getText().replace('/'," - ")
+	page,soup,links = getPageFromUrl(url + link.attrs['href']) 
+	return [page,soup,links,name]
+
+def linkFilt(links, s1 = 'Ap43JsNOhayCHANCEdeQUElePASESesteLINKa,RsZ1.,m', s2 = 'Ap43JsNOhayCHANCEdeQUElePASESesteLINKa,RsZ1.,m'):
+	return [link for link in links if (link.attrs['href'][:5] == 'index' and not(link.getText() in ['Root','ICPC Archive Volumes',s1,s2])) ]
+
+def downloadFromUrlToPath(url,nameOfFolder,nameOfFile):
+		res = requests.get(url) 
+		soupPDF = bs4.BeautifulSoup(res.text) 
+		if ( len(soupPDF.select('h1')) == 0 and res.headers["Content-Length"] != "0"):
+			pdf = open(os.path.join(nameOfFolder,nameOfFile + ".pdf"),"wb") 
+			for chunk in res.iter_content(100000): 
+				pdf.write(chunk)
+			pdf.close()
+
+def downloadRegionalFromLinkToPath(url,linksRegional,nameOfFolder,contestsYear,regional):
+	os.makedirs(nameOfFolder)
+	combined = PdfFileMerger()
+	for linkRegional in linkFilt(linksRegional,contestsYear,regional):
+		pageProblem,soupProblem,linksProblem,problem = getPageFromLink(url,linkRegional) 
+		print problem 
+		for linkProblem in linksProblem: 
+			if ('.pdf' == linkProblem.attrs['href'][-4:]): 
+				downloadFromUrlToPath(url + linkProblem.attrs['href'],nameOfFolder,problem)
+				inpu = open(os.path.join(nameOfFolder,problem + ".pdf"),"rb") 
+				combined.append(inpu) 
+	outpu = open(os.path.join(nameOfFolder,contestsYear + " - " + regional + ".pdf"),"wb")
+	combined.write(outpu) 
+	print " - - - - "
+	
 
 	
 requests.packages.urllib3.disable_warnings() # Esto hace falta en mi maquina, no se si es necesario siempre.
+
 rootUrl = 'https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&Itemid=8'
 url = "https://icpcarchive.ecs.baylor.edu/" 
 
+pageRoot,soupRoot,linksRoot = getPageFromUrl(rootUrl)
 
-os.makedirs('Live Archive') 
-page = requests.get(rootUrl) 
-soup = bs4.BeautifulSoup(page.text) 
-links = soup.select('a') 
-for link in links:  # Si se quiere comenzar a descargar desde las Regionales del anho yyyy debemos cambiar "links" por "links[20+(2015-yyyy):]" Y la carpeta Regionals yyyy no debe estar creada adentro de Live Archive.
-	if 'index' == link.attrs['href'][:5] and link.getText() != 'Root' and link.getText() != 'ICPC Archive Volumes': 
-		print "--------------\n--------------"
-		contestsYear = link.getText().replace("/"," - ")
-		print contestsYear  
+print "_______________________________________________________________"
+print "Desea descargar una prueba en particular o todo Live Archive?"
+print "1 -> Todo Live Archive"
+print "2 -> Regional/World Final particular"
+
+opcion = int(sys.stdin.readline())
+
+if opcion == 1:
+	os.makedirs('Live Archive') 
+	print "Comienza la descarga de Live Archive... (muchas horas restantes)"
+	for linkRoot in linkFilt(linksRoot):   
+		pageYear,soupYear,linksYear,contestsYear = getPageFromLink(url,linkRoot)
 		os.makedirs('Live Archive/' + contestsYear) 
 		print "--------------\n--------------"
-		pageYear = requests.get(url + link.attrs['href']) 
-		soupYear = bs4.BeautifulSoup(pageYear.text) 
-		linksYear = soupYear.select('a') 
-		for linkYear in linksYear: 
-			if 'index' == linkYear.attrs['href'][:5] and linkYear.getText() != 'Root' and linkYear.getText() != link.getText(): 
-				regional = linkYear.getText().replace("/"," - ")
-				print regional
-				os.makedirs('Live Archive/' + contestsYear + "/" + regional)
-				print " - - - - "
-				pageRegional = requests.get(url + linkYear.attrs['href']) 
-				soupRegional = bs4.BeautifulSoup(pageRegional.text) 
-				linksRegional = soupRegional.select('a') 
-				combined = PdfFileMerger()
-				for linkRegional in linksRegional:
-					if 'index' == linkRegional.attrs['href'][:5] and linkRegional.getText() != 'Root' and linkRegional.getText() != link.getText() and linkRegional.getText() != linkYear.getText(): 
-						problem = linkRegional.getText().replace("/"," - ") 
-						print problem 
-						pageProblem = requests.get(url + linkRegional.attrs['href']) 
-						soupProblem = bs4.BeautifulSoup(pageProblem.text) 
-						linksProblem = soupProblem('a') 
-						for linkProblem in linksProblem: 
-							if ('.pdf' == linkProblem.attrs['href'][-4:]): 
-								res = requests.get(url + linkProblem.attrs['href']) 
-								soupPDF = bs4.BeautifulSoup(res.text) 
-								if ( len(soupPDF.select('h1')) == 0 and res.headers["Content-Length"] != "0"):
-									pdf = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,problem + ".pdf"),"wb") 
-									for chunk in res.iter_content(100000): 
-										pdf.write(chunk)
-									pdf.close()	
-									inpu = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,problem + ".pdf"),"rb") 
-									combined.append(inpu) 
-				outpu = open(os.path.join('Live Archive/' + contestsYear + "/" + regional,contestsYear + " - " + regional + ".pdf"),"wb")
-				combined.write(outpu) 
-				print " - - - - "
+		print contestsYear  
+		print "--------------\n--------------"
+		for linkYear in linkFilt(linksYear,contestsYear): 
+			pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,linkYear)
+			print regional
+			print " - - - - "
+			downloadRegionalFromLinkToPath(url,linksRegional,'Live Archive/' + contestsYear + "/" + regional,contestsYear,regional)
+
+else:
+	print "World Final o Regional?"
+	print "1 -> World Final"
+	print "2 -> Regional"
+	opcionWFoR = int(sys.stdin.readline())
+	if opcionWFoR == 1:
+		print "Cual de estas? (por favor, espere a que termine de cargar la lista)"
+		pageYear,soupYear,linksYear,contestsYear = getPageFromLink(url,linksRoot[19])
+		WFList = list(enumerate(linkFilt(linksYear,contestsYear)))
+		for i,linkYear in WFList:
+			pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,linkYear)
+			print i+1,"->",regional
+		print "(carga de lista completa)"
+		prueba = int(sys.stdin.readline())
+		pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,WFList[prueba-1][1])
+		print "--------------\n--------------"
+		print contestsYear  
+		print "--------------\n--------------"
+		print regional
+		print " - - - - "
+		downloadRegionalFromLinkToPath(url,linksRegional,regional,contestsYear,regional)
+	else:
+		print "De que anho? (por favor, espere a que termine de cargar la lista)"
+		RegionalList = list(enumerate(linkFilt(linksRoot,"World Finals")))
+		for i,linkRoot in RegionalList:
+			pageYear,soupYear,linksYear,contestsYear = getPageFromLink(url,linkRoot)
+			print i+1,"->",contestsYear
+		print "(carga de lista completa)"
+		anho = int(sys.stdin.readline())
+		pageYear,soupYear,linksYear,contestsYear = getPageFromLink(url,RegionalList[anho-1][1])
+		print "--------------"
+		print contestsYear
+		print "--------------"
+		print "Que region? (por favor, espere a que termine de cargar la lista)"
+		AreaList = list(enumerate(linkFilt(linksYear,contestsYear)))
+		for i, linkYear in AreaList:
+			pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,linkYear)
+			print i+1,"->",regional
+		print "(carga de lista completa)"
+		prueba = int(sys.stdin.readline())
+		pageRegional,soupRegional,linksRegional,regional = getPageFromLink(url,AreaList[prueba-1][1])
+		print "--------------\n--------------"
+		print contestsYear  
+		print "--------------\n--------------"
+		print regional
+		print " - - - - "
+		downloadRegionalFromLinkToPath(url,linksRegional,contestsYear + " - " + regional,contestsYear,regional)
+		
+		
+print "Descarga Finalizada"
+		
