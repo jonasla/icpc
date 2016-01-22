@@ -10,7 +10,18 @@ Descripción: Te dan un grafo dirigido con N (2<= N <= 500) vértices y M
  y D (destino). El problema pide calcular el camino más corto de S a D que
  no utilicen aristas que estén en algún camino mínimo de S a D.
  
-Resolución:
+Resolución: La idea es que para cada nodo v entre S y D, un camino mínimo 
+que va de S a D y pasa por v se forma por un camíno mínimo de S a v, 
+concatenado con otro camino mínimo que va de v a D. Para resolver el problema 
+hacemos un Dijkstra que calcule para cada nodo la distancia y las aristas que 
+se usan para algún camino mínimo hasta v partiendo de S. Transponemos el 
+grafo y hacemos lo mismo para D. Luego, para cada nodo v, si el camino mínimo 
+entre S y v concatenado con el camino mínimo de v a D tiene el mismo largo que 
+el camino mínimo, entonces agregamos todas las aristas de esos caminos (que ya 
+fueron calculadas) a un conjunto de aristas prohibidas. Finalmente, corremos 
+un último Dijkstra, pero sin utilizar las aristas prohibidas.
+
+
 
 
 
@@ -21,7 +32,15 @@ Resolución:
 Descripción: Te dan una igualdad de dos expresiones y hay que decidir para
 qué bases de numeración la relación es válida.
 
-Resolución:
+Resolución: La idea es escribir cada una de las expresiones en base "b"
+genérica. Eso te da un polinomio que depende de "b" de cada lado. Si 
+pasamos restando, la igualdad dada vale para b si y solo si b es una 
+raíz del polinomio. Luego, resta encontrar las raíces enteras del 
+polinomio que son mayores o iguales que 2 y mayores que la mayor cifra 
+que aparece en alguna de las 2 expresiones originales. Para encontrar 
+las raíces podemos probar todos los divisores del término independiente 
+por Gauss (notar que para calcular los divisores solo hace falta iterar 
+hasta la raíz del término independiente).
 
 
 
@@ -186,7 +205,7 @@ iterar desde q = n hasta que q sea menor que 3, y si q divide a suma debemos
 testear si es posible armar un polígono de largo l = sumaArcos/q.
 Para hacer este testeo lo que hacemos es calcular las sumas parciales de todos 
 los arcos módulo l y contar las ocurrencias de cada resto. Si existe un resto que 
-aparece más de q veces, entonces se puede, sino no.
+aparece q veces o más, entonces se puede, sino no.
 
 
 
