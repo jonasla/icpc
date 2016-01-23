@@ -49,6 +49,7 @@ Teoría de números:
 Otros:
 	
 	- Máxima subsecuencia creciente
+	- Rotar una matriz 90°
 	- Fórmulas varias (como la de la phi de euler, la característica de euler en grafos planares, la fórmula de herón, etc. etc. etc.)
 	
 

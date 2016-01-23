@@ -21,30 +21,44 @@ tint comparar (vector<string> imagen1, vector<string> imagen2)
 	return ans;
 } 
 
-void rotar (vector<string> &origi)
+void rotar (vector<string> &origi) // Rota una matriz de (n X n) 90° en sentido horario.
 {
-	string aux = "xxxxxxxxxx";
-	vector<string> rotado (10,aux);
-	tint comienzo = 0, final = 9;
-	while (comienzo < final)
+	tint n = origi.size();
+	string aux (n,'x');
+	vector<string> rotado (n,aux);
+	tint comienzo = 0, fin = n-1;
+	while (comienzo <= fin)
 	{
-		forsn(i,comienzo,final)
+		forsn(i,comienzo,fin+1)
 		{
-			rotado[i][final] = origi[comienzo][i];
-			rotado[final][final - i] = origi[i][final];
-			rotado[final-i][comienzo] = origi[final][final - i];
-			rotado[comienzo][i] = origi[final - i][comienzo];
+			rotado[i][fin] = origi[comienzo][i];
+			rotado[fin][fin - i + comienzo] = origi[i][fin];
+			rotado[fin - i + comienzo][comienzo] = origi[fin][fin-i + comienzo];
+			rotado[comienzo][i] = origi[fin-i+comienzo][comienzo];
 		}
-		comienzo--;
-		final--;
+		comienzo++;
+		fin--;
 	}
+	origi = rotado;
+}
+
+void rotarFacil (vector<string> &origi) // Rota una matriz de (n X n) 90° en sentido horario.
+{
+	tint n = origi.size();
+	string aux (n,'x');
+	vector<string> rotado (n,aux);
+	forn(i,n)
+	forn(j,n)
+		rotado[j][n-i-1] = origi[i][j];
+	origi = rotado;
 }
 
 
 int main()
 {
 	#ifdef ACMTUYO
-		freopen("61.in","r",stdin);
+	if (!freopen("64.in","r",stdin))
+		return 1;
 	#endif
 	tint n,m;
 	while(cin >> m)
@@ -62,6 +76,7 @@ int main()
 			libreria[letra] = imagen;
 		}
 		cin >> n;
+		
 		forn(l,n)
 		{
 			tint inpu = 101;
@@ -70,22 +85,25 @@ int main()
 			vector<string> imagen (10);
 			forn(i,10)
 				cin >> imagen[i];
+			
 			for (auto x : libreria)
 			{
+				
 				forn(i,4)
 				{
 					tint r = comparar(imagen,x.second);
-					if (r <= misses && input[x.first] < inpu)
+					if (r < misses or (r == misses && input[x.first] < inpu))
 					{
 						inpu = input[x.first];
 						misses = r;
 						ans = x.first;
-					}
+					}	
 					if (i < 3)
-						rotar(imagen);
+						rotarFacil(imagen);
 				}
-				cout << ans;
 			}
+			cout << ans;
+			
 		}
 		cout << endl;
 	}
