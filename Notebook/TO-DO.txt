@@ -1,0 +1,55 @@
+Lista de los distintos algoritmos que queremos implementar.
+
+Grafos:
+
+	- DFS
+	- BFS
+	- Dijkstra
+	- Union Find (Disjoint Union Set)
+	- Kruskal (¿Prim?)
+	- Componentes Fuertemente Conexas
+	- Floyd Warshall
+	- Bellman Ford
+	- Camino Euleriano
+	
+	
+Flujo:
+	
+	- Maximum Flow / Maximum Flow Minimum Cost
+	- Matching bipartito
+	- Simplex (?)
+ 
+Estructuras de datos:
+	
+	- Segment Tree
+	- Trie
+	
+ 
+Strings:
+
+	- Subsecuencia común más larga
+	- Tablita de bordes
+	- KMP
+		
+Geometría:
+
+	- Distancia de punto a un segmento
+	- Convex Hull (obvio que 2D)
+	
+Teoría de números:
+
+	- Máximo Común Divisor/ Mínimo Común Múltiplo
+	- Criba de Eratóstenes
+	- Desarrollo en base B
+	- Inverso modular
+	- Exponenciación logarítmica
+	- Teorema Chino del resto (?)
+	
+	
+Otros:
+	
+	- Máxima subsecuencia creciente
+	- Fórmulas varias (como la de la phi de euler, la característica de euler en grafos planares, la fórmula de herón, etc. etc. etc.)
+	
+
+
