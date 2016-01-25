@@ -13,7 +13,7 @@ using namespace std;
 struct carta{
 	int r,s; //rank and suit; suit C < D < H < S
 	bool jugada,efectoRealizado;
-	carta();
+	carta(){}
 	carta(int a,int b){r=a;s=b;jugada=false;efectoRealizado=false;}
 };
 
