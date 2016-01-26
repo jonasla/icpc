@@ -1,62 +1,62 @@
 #include <iostream>
-#include <deque>
 #include <vector>
-
-#define forn(i,n) for(int i = 0; i < (int) (n);i++)
+#include <algorithm>
 
 using namespace std;
 
-deque<long long> baseN (long long m, long long n)
-{
-	deque<long long> num;
-	while (m > 0)
-	{
-		num.push_front(m % n);
-		m /= n;
+typedef unsigned long long utint;
+typedef vector<int> vi;
+
+#define forn(i,n) for(int i = 0; i < (int) (n);i++)
+#define pb push_back
+
+vi baseN(utint k, int N, int sec){
+	vi res;
+	while(k > 0){
+		res.pb(k%N);
+		k /= N;
 	}
-	return num;
-	
+	while((int)res.size() < sec){
+		res.pb(0);
+	}
+	reverse(res.begin(), res.end());
+	return res;
 }
 
+int main(){
 
-int main()
-{
-	
-	long long n,Q;
-	cin >> n >> Q;
-	while( n != 0)
-	{
-		vector<string> canciones (n);
-		forn(i,n)
-			cin >> canciones[i];
-		forn(i,Q)
-		{
-			long long k;
-			cin >> k;
-			long long q = 1;
-			long long nAlaq = n;
-			long long suma = n;
-			long long nivel = n;
-			while (suma < k)
-			{
-				q++;
-				nAlaq *= n;
-				nivel = q*nAlaq;
-				suma += nivel; 
+	int N, Q; 
+	while(cin >> N >> Q && N != 0 && Q != 0){
+		vector<string> songs(N);
+		forn(i,N) cin >> songs[i];
+		
+		forn(i,Q){
+			utint k; cin >> k;
+			int sec = 1;
+			utint tamSec = N;
+			while(k > tamSec){
+				k -= tamSec;
 				
+				sec++;
+				tamSec /= (sec-1);
+				tamSec *= N;
+				tamSec *= sec;
 			}
-			suma -= nivel;
-			k = k - suma - 1;
-			long long pos = k % q;
-			k /= q;
-			deque <long long> desarrollo = baseN(k,n);
-			cout << canciones[desarrollo[pos]] << endl; ;	
-			
+			/*
+			cout << "Size: " << sec << endl;
+			cout << "Word: " << (k-1) / (sec) << endl;
+			cout << "Song: " << (k-1) % (sec) << endl;
+			*/
+			vi word = baseN((k-1) / (sec), N, sec);
+			/*
+			cout << "Palabra: ";
+			for(auto &c : word) cout << c << " ";
+			cout << endl;
+			*/
+			cout << songs[word[(k-1) % (sec)]] << endl;
 		}
-		
-		
-		
-		cin >> n >> Q;
+		cout << endl;
 	}
+
 	return 0;
 }

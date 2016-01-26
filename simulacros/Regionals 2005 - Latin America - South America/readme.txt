@@ -65,7 +65,23 @@ Finalmente, tenemos para cada empleado las tareas que sí se le deben pagar, y l
 
 3474:
 
+Descripción: 
+Dado N, se desarrolla la secuencia infinita de las palabras de largo i 
+(i empieza en 1 y crece infinitamente) con las N primeras letras, en orden 
+lexicográfico. 
+Por ejemplo, si N=3, una parte de la secuencia empezaría así
+ABCAAABACBABBBCCACBCCAAAAABAACABAABBABC...
+Dados N y Q queries con números K (1 <= K <= 100000000), 
+conseguir la K-ésima letra de la secuencia de N. 
 
+Resolución: 
+Si la secuencia es de N, hay N palabras de largo 1 (1*N), N**2 palabras de largo 2 
+(2*N**2), N**3 de largo 3 (3*N**3) y así. Dado un K, podemos ir restando estas longitudes 
+hasta que sea menor que lo acumulado. Luego sabemos a qué parte de la secuencia pertenece 
+la letra que queremos (es decir, sabemos que pertenece a alguna palabra de largo j). 
+Usando el resultado K' haberle restado a K las longitudes, y dividiendo por el largo j podemos saber 
+a qué palabra de esa sección pertenece. Luego lo que queremos es la i-ésima palabra en base N de largo j. 
+Finalmente, la respuesta será el caracter (K' % j) de la palabra. 
 
 ////////////////////////////////////////////////////////////////////////
 
