@@ -26,15 +26,18 @@ void maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, t
 	{
 		vector<tint> path (qNodos,-1);
 		// Aca empieza el bfs
+		
 		path[source] = -2;
 		capacityFound = 0;
 		vector<tint> pathCapacity (qNodos,999999999999);
 		deque<tint> visit = {source};
+		bool flag = false;
 		while (!visit.empty())
 		{
 			tint actual = visit.front();
 			visit.pop_front();
 			for (auto vecino : ladj[actual])
+			{
 				if (capacidades[actual][vecino] > flowPath[actual][vecino] && path[vecino] == -1 )
 				{
 					path[vecino] = actual;
@@ -44,9 +47,15 @@ void maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, t
 					else
 					{
 						capacityFound = pathCapacity[vecino];
-						break;
+						flag = true;
 					}
 				}
+				if (flag)
+				{
+					visit.clear();
+					break;
+				}
+			}
 		}
 		// Aca termina el bfs
 		if (capacityFound == 0)
