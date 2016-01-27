@@ -1,6 +1,5 @@
 Problema A
 Problema E
-Problema F
 Problema G
 Problema I
 Problema J
