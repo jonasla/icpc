@@ -22,41 +22,37 @@ struct Par
 	}
 };
 
-void bfs (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, tint &m, tint &n, tint &source, tint &terminal,vector<vector<tint> > &flowPath, tint &capacityFound, vector<tint> &path)
-{
-	path[source] = -2;
-	capacityFound = 0;
-	vector<tint> pathCapacity (n+m+2,999999999999);
-	deque<tint> visit = {source};
-	while (!visit.empty())
-	{
-		tint actual = visit.front();
-		visit.pop_front();
-		for (auto vecino : ladj[actual])
-			if (capacidades[actual][vecino] > flowPath[actual][vecino] && path[vecino] == -1 )
-			{
-				path[vecino] = actual;
-				pathCapacity[vecino] = min(pathCapacity[actual],capacidades[actual][vecino] - flowPath[actual][vecino]);
-				if (vecino != terminal)
-					visit.push_back(vecino);
-				else
-				{
-					capacityFound = pathCapacity[vecino];
-					break;
-				}
-			}
-	}
-	
-}
 
-void maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, tint m, tint n, tint source, tint terminal,vector<vector<tint> > &flowPath, tint &flow)
+void maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, tint qNodos, tint source, tint terminal, vector<vector<tint> > &flowPath, tint &flow)
 {
 	tint capacityFound = -1;
 	while (capacityFound != 0)
 	{
-		vector<tint> path (n+m+2,-1);
-		bfs(capacidades,ladj,m,n,source,terminal,flowPath,capacityFound,path);
-		
+		vector<tint> path (qNodos,-1);
+		// Aca empieza el bfs
+		path[source] = -2;
+		capacityFound = 0;
+		vector<tint> pathCapacity (qNodos,999999999999);
+		deque<tint> visit = {source};
+		while (!visit.empty())
+		{
+			tint actual = visit.front();
+			visit.pop_front();
+			for (auto vecino : ladj[actual])
+				if (capacidades[actual][vecino] > flowPath[actual][vecino] && path[vecino] == -1 )
+				{
+					path[vecino] = actual;
+					pathCapacity[vecino] = min(pathCapacity[actual],capacidades[actual][vecino] - flowPath[actual][vecino]);
+					if (vecino != terminal)
+						visit.push_back(vecino);
+					else
+					{
+						capacityFound = pathCapacity[vecino];
+						break;
+					}
+				}
+		}
+		// Aca termina el bfs
 		if (capacityFound == 0)
 			break;
 		flow += capacityFound;
@@ -136,7 +132,7 @@ int main()
 				
 			tint flow = 0;
 			vector<vector<tint> >  flowPath (n+m+2, vector<tint> (n+m+2,0));
-			maxFlow(capacidades,ladj,m,n,0,n+m+1,flowPath,flow);
+			maxFlow(capacidades,ladj,m+n+2,0,n+m+1,flowPath,flow);
 			vector<Par> casillasQueRestar;
 			forn(i,m)
 			forn(j,n)

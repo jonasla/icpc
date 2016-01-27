@@ -143,7 +143,23 @@ con dos cifras decimales. Hay que decidir si es posible construir una matriz del
 mismo tamaño con coeficientes enteros, y donde cada coeficiente de la nueva matriz es 
 techo o piso del coeficiente original.
 
-Resolución: Próximamente (?). 
+Resolución: Primero que nada observamos que si la suma de las filas y la suma de las 
+columnas son todas enteras, entonces existe una solución. Luego generamos la matriz 
+que tiene como coeficientes techo de los coeficientes de la matriz original. Luego 
+solo queda elegir en qué coeficientes debíamos tomar piso en lugar de techo, lo cual genera 
+una diferencia de 1 en la fila y columna de la casilla. Por lo tanto, para cada fila y para cada 
+columna hay que ubicar tantos pisos como la diferencia entre la suma actual de la fila/columna 
+y la suma original de cada fila/columna. Esto podemos pensarlo como un problema de flujo. Consideremos 
+"m" nodos por fila y "n" nodos por columna. Lo que hacemos es construir un nodo fuente (digamos "s") y 
+sacamos una arista a un nodo por fila con capacidad igual a la diferencia entre la suma actual y la 
+original de la fila. Luego, unimos a cada nodo de fila con todos los nodos de las columnas con capacidad 
+igual a 1. Por último creamos un nodo terminal (digamos "t") y a todos los nodos de las columnas los 
+unimos con "t" con capacidad igual a la diferencia entre la suma de columnas actual y la original. 
+Finalmente, calculamos el flujo máximo que podemos mandar en la red, y si al obtener el máximo flujo nos 
+qeuda que pasa flujo por la arista que uno al nodo "i" de las filas con el nodo "j" de las columnas 
+entonces debíamos tomar piso en vez de techo en la matriz original. Notar que nos devuelve una 
+solución posible, pero podría haber muchas. Además hay que tener en cuenta que si originalmente 
+en la matriz había un número entero, entonces este no debe ser modificado.
 
 
 
