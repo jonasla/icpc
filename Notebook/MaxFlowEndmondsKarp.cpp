@@ -3,7 +3,6 @@
 #include <vector>
 #include <set>
 #include <algorithm>
-#include <deque>
 
 typedef long long tint;
 
