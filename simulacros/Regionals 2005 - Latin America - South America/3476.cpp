@@ -3,15 +3,18 @@
 #include <algorithm>
 
 
-#define forn(i,n) for(tint i=0;i<(tint)(n);i++)
-#define forsn(i,s,n) for(tint i=s;i<(tint)(n);i++)
-
-typedef long long tint;
+#define forn(i,n) for(int i=0;i<(int)(n);i++)
+#define forsn(i,s,n) for(int i=s;i<(int)(n);i++)
 
 using namespace std;
 
-vector<tint> mX = {1,-1,0,0};
-vector<tint> mY = {0,0,1,-1};
+int mX[4] = {1,-1,0,0};
+int mY[4] = {0,0,1,-1};
+
+int aux[2][5] = {{'L',1,-1,0,1},{'V',-1,1,1,-1}}; // coloca y descoloca.
+
+int ap[2][2] = {{1,1},{-1,0}}; // enciendo, apago.
+int mA[4][2] = {{1,0},{-1,0},{0,1},{0,-1}}; // abajo, arriba, derecha, izquierda.
 
 // Tipo:
 // 'L' -> Lampara
@@ -26,9 +29,9 @@ vector<tint> mY = {0,0,1,-1};
 
 struct Casilla
 {
-	tint iluminan,adj;
+	int iluminan,adj;
 	char tipo;
-	Casilla (char tt,tint ii, tint aa)
+	Casilla (char tt,int ii, int aa)
 	{
 		tipo = tt;
 		iluminan = ii;
@@ -38,157 +41,83 @@ struct Casilla
 
 
 
-// ponerLampara == 0 -> puse la lampara y todo sigue valido, ponerLampara == 1 -> puse la lampara y amenace otra lampara, ponerLampara 2-> puse la lampara y cague la vecindad de una barrera.
-// 0 -> actualiza el tablero, 1 y 2 -> dejan el tablero en su estado original
-// tablero[i][j].tipo == 'V' antes de llamar a poner lampara, sino estoy mandando alta fruta.
-
-tint ponerLampara(vector<vector<Casilla> > &tablero, tint i, tint j, tint &luces, tint &iluminadas, tint &completas)	// En esta funcion pasa toda la magia
+bool colocarLampara(vector<vector<Casilla> > &tablero, int i, int j, int &luces, int &completas, int d)	// si d = 0 coloca, si d = 1 descoloca.
 {
-	tint n = tablero.size(), m = tablero[0].size(), ans = 0;
-	// Colocamos la lampara y chequeamos las barreras en las casillas vecinas
-	forn(k,mX.size())
+	int n = tablero.size(), m = tablero[0].size();
+	bool noArruinaAdyacencia = true;
+	tablero[i][j].tipo = aux[d][0];
+	luces+= aux[d][1];
+	forn(k,4)
 	{
-		if (i + mX[k] >= 0 && i + mX[k] < n && j + mY[k] >= 0 && j + mY[k] < m && tablero[i+mX[k]][j+mY[k]].tipo == 'B') // si la casilla vecina esta en el tablero y es barrera. 
+		int x = i + mX[k], y = j + mY[k];
+		if (x >= 0 && x < n && y >= 0 && y < m) // si la casilla vecina esta en el tablero
 		{
-			if (tablero[i+mX[k]][j+mY[k]].adj == 0) // Si NO se le puede agregar una lampara vecina
-				ans = 2;
-			tablero[i+mX[k]][j+mY[k]].adj--;
-			if (tablero[i+mX[k]][j+mY[k]].adj == 0) // Notar que en el medio le reste uno.
-				completas++;
+			tablero[x][y].adj+= aux[d][2];
+			if (tablero[x][y].adj == -1)
+				noArruinaAdyacencia = false;
+			if ( tablero[x][y].tipo == 'B' && tablero[x][y].adj == aux[d][3]) 
+				completas+= aux[d][4];
 		}
 	}
-	if (ans == 2)
-	{
-		forn(k,mX.size())
-		if (i + mX[k] >= 0 && i + mX[k] < n && j + mY[k] >= 0 && j + mY[k] < m && tablero[i+mX[k]][j+mY[k]].tipo == 'B')
-		{
-			tablero[i+mX[k]][j+mY[k]].adj++;
-			if (tablero[i+mX[k]][j+mY[k]].adj == 1)
-				completas--;
-		}
-	}
+	return noArruinaAdyacencia;
+	
+}
+
+
+bool enciendeLampara(vector<vector<Casilla> > &tablero, int i, int j, int &iluminadas, int a)	 // si a = 0 enciende, si a = 1 apaga.
+{
 	// Encendemos la lampara, actualizamos lo que ilumina y lo deshacemos si amenaza otra lampara
-	vector<vector<tint> > movimientoAuxiliar = {{1,n,1,0,1,i},{-1,n,-1,0,1,i},{1,m,1,1,1,j},{-1,m,-1,1,1,j},{1,n,1,0,-1,i},{-1,n,-1,0,-1,i},{1,m,1,1,-1,j},{-1,m,-1,1,-1,j}}; // Para abajo, Para arriba, Para la derecha, Para la izquierda. Las primeras 4 encienden, Las segundas 4 apagan
-	if (ans == 0)
+	int n = tablero.size(), m = tablero[0].size();
+	bool noAmenazaLampara = true;
+
+	tablero[i][j].iluminan += ap[a][0];
+	if (tablero[i][j].iluminan == ap[a][1])
+		iluminadas += ap[a][0];
+	forn(p,4)
 	{
-		tablero[i][j] = Casilla('L',tablero[i][j].iluminan + 1, -1);
-		luces++;
-		if (tablero[i][j].iluminan == 1)
-			iluminadas++;
-		forn(p,movimientoAuxiliar.size())
+		int d = 1;
+		int x = i + mA[p][0]*d, y = j + mA[p][1]*d;
+		while (x >= 0 && x < n && y >= 0 && y < m && tablero[x][y].tipo != 'B')
 		{
-			if (p > 3 && ans == 0) // Si encendimos la lampara y no hubo problemas, no la apagues.
-				break;
-			else if (p == 4 && ans == 1)  // Si hay que quitarla, primero la descolocamos (notar que solo se ejecuta una vez)
+			if (tablero[x][y].tipo == 'L')
+				noAmenazaLampara = false;
+			tablero[x][y].iluminan += ap[a][0];
+			if (tablero[x][y].iluminan == ap[a][1])
+				iluminadas += ap[a][0];
+			d++;
+			x = i + mA[p][0]*d;
+			y = j + mA[p][1]*d;
+		}
+	}
+	return noAmenazaLampara;
+}
+
+void backTrack (vector<vector<Casilla> > &tablero, int &luces, int &vacias, int &iluminadas, int &completas, int desdeI, int desdeJ, int &bestAnswer)
+{
+	int n = tablero.size(), m = tablero[0].size();
+	
+	if (luces < bestAnswer)
+	{
+		forsn(i,desdeI,n)
+		forsn(j,desdeJ,m)
+		{
+			if (j == m-1)
+				desdeJ = 0;
+			if (tablero[i][j].tipo == 'V' && tablero[i][j].iluminan == 0) 
 			{
-				tablero[i][j] = Casilla('V',tablero[i][j].iluminan - 1, -1);
-				luces--;
-				forn(k,mX.size())
+				if (colocarLampara(tablero,i,j,luces,completas,0) && luces < bestAnswer)
 				{
-					if (i + mX[k] >= 0 && i + mX[k] < n && j + mY[k] >= 0 && j + mY[k] < m && tablero[i+mX[k]][j+mY[k]].tipo == 'B' )
+					if (enciendeLampara(tablero,i,j,iluminadas,0))
 					{
-						tablero[i+mX[k]][j+mY[k]].adj++;	
-						if (tablero[i+mX[k]][j+mY[k]].adj == 1)
-							completas--;
+						if (iluminadas != vacias or completas != (n*m - vacias))  // b = n*m-vacias, porque vacias = (n*m-b)
+							backTrack(tablero,luces,vacias,iluminadas,completas,i,j,bestAnswer);
+						else 
+							bestAnswer = luces;
 					}
+					enciendeLampara(tablero,i,j,iluminadas,1);
 				}
+				colocarLampara(tablero,i,j,luces,completas,1);
 			}
-			vector<tint> x = movimientoAuxiliar[p];
-			for (tint k = x[5] +x[0]; 0 <= k && k < x[1]; k += x[2]) 
-			{
-				if (tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].tipo == 'L')
-				{
-					ans = 1;
-					break;
-				}
-				else if (tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].tipo == 'B' )
-					break;
-				else
-					tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].iluminan += x[4];
-				if (p > 3 && tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].iluminan == 0 && tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].tipo == 'V')
-					iluminadas--;
-				else if (p <= 3 && tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].iluminan == 1 && tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].tipo == 'V')
-					iluminadas++;
-			}
-		}
-	}
-	return ans;
-}
-
-void sacarLampara(vector<vector<Casilla> > &tablero, tint i, tint j, tint &luces, tint &iluminadas, tint &completas)	// Al llamarla ya tiene que existir lampara en (i,j), sino la cagamos.
-{
-	tint n = tablero.size(), m = tablero[0].size();
-	// Sacamos la lampara y actualizmos la adyacencia a vecinos
-	tablero[i][j] = Casilla('V',tablero[i][j].iluminan - 1, -1);
-	luces--;
-	if (tablero[i][j].iluminan == 0)
-		iluminadas--;
-	forn(k,mX.size())
-		if (i + mX[k] >= 0 && i + mX[k] < n && j + mY[k] >= 0 && j + mY[k] < m && tablero[i+mX[k]][j+mY[k]].tipo == 'B')
-		{
-			tablero[i+mX[k]][j+mY[k]].adj++;
-			if (tablero[i+mX[k]][j+mY[k]].adj == 1 ) 
-				completas--;
-		}
-		
-	
-	// Apagamos la lampara, actualizamos lo que deja de iluminar
-	vector<vector<tint> > movimientoAuxiliar = {{1,n,1,0,-1,i},{-1,n,-1,0,-1,i},{1,m,1,1,-1,j},{-1,m,-1,1,-1,j}}; // Para abajo, Para arriba, Para la derecha, Para la izquierda. Ahora las 4 apagan
-	
-	forn(p,movimientoAuxiliar.size())
-	{
-		vector<tint> x = movimientoAuxiliar[p];
-		for (tint k = x[5] +x[0]; 0 <= k && k < x[1]; k += x[2]) 
-		{
-			if (tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].tipo != 'V')
-				break;
-			else
-				tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].iluminan += x[4];
-			if (tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].iluminan == 0 &&  tablero[i*x[3] + k*(1-x[3])][j*(1-x[3])+k*x[3]].tipo == 'V')
-				iluminadas--;
-				
-		}
-	}
-}
-
-bool chequeo (vector<vector<Casilla> > &tablero, vector<tint> &ans)
-{
-	tint n = tablero.size(), m = tablero[0].size(), q = 0;
-	bool risposta = true;
-	forn(i,n)
-	forn(j,m)
-	{
-		if (tablero[i][j].tipo == 'V')
-			risposta &= (tablero[i][j].iluminan > 0);
-		else if (tablero[i][j].tipo == 'L')
-		{
-			risposta &= (tablero[i][j].iluminan > 0);
-			q++;
-		}
-		else // if (tablero[i][j] == 'B')
-			risposta &= (tablero[i][j].adj <= 0);		
-	}
-	if (risposta)
-		ans.push_back(q);
-	return risposta;
-}
-
-void backTrack (vector<vector<Casilla> > &tablero, vector<tint> &ans, tint &luces, tint &vacias, tint &iluminadas, tint &completas, tint desdeI, tint desdeJ)
-{
-	tint n = tablero.size(), m = tablero[0].size();
-	
-	forsn(i,desdeI,n)
-	forsn(j,desdeJ,m)
-	{
-		if (j == m-1)
-			desdeJ = 0;
-		if (tablero[i][j].tipo == 'V' && tablero[i][j].iluminan == 0 && ponerLampara(tablero,i,j,luces,iluminadas,completas) == 0)
-		{
-			if (iluminadas != vacias or completas != (n*m - vacias)) // b = n*m-vacias, porque vacias = (n*m-b)
-				backTrack(tablero,ans,luces,vacias,iluminadas,completas,i,j);
-			else
-				ans.push_back(luces);
-			sacarLampara(tablero,i,j,luces,iluminadas,completas);
 		}
 	}
 		
@@ -211,29 +140,28 @@ int main()
 	if (!freopen("entrada.in", "r", stdin))
 		return 1;
 	#endif
-	tint n,m;
+	int n,m;
 	while (cin >> n >> m && n != 0 && m != 0)
 	{
-		tint b,completas = 0; 
+		int b,completas = 0; 
 		cin >> b;
 		vector<vector<Casilla> > tablero (n, vector<Casilla> (m,Casilla('V',0,-1))); // Al principio esta todo el tablero vacio
 		forn(i,b)
 		{
-			tint r,c,k;
+			int r,c,k;
 			cin >> r >> c >> k;
 			tablero[r-1][c-1] = Casilla('B',0,k);
 			if (k <= 0)
 				completas++;
 		}
-		vector<tint> ans;
-		tint luces = 0, vacias = n*m-b,iluminadas = 0;
-		chequeo(tablero,ans); // Hay que hacer un chequeo inicial en caso de que haya solucion en la que no se pongan lamparas.
-		backTrack(tablero,ans,luces,vacias,iluminadas,completas,0,0); // Encuentra todas las soluciones que usan al menos una lampara
-		if (ans.empty())
+		int luces = 0, vacias = n*m-b,iluminadas = 0, bestAnswer = 50;
+		backTrack(tablero,luces,vacias,iluminadas,completas,0,0,bestAnswer); // Encuentra todas las soluciones que usan al menos una lampara
+		if (completas == n*m)
+			cout << 0 << endl;
+		else if (bestAnswer == 50)
 			cout << "No solution" << endl;
 		else
-			cout << *min_element(ans.begin(),ans.end()) << endl;
-		
+			cout << bestAnswer << endl;
 	}
 	return 0;
 }

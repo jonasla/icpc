@@ -24,9 +24,16 @@ struct Arista
 	}
 }; 
 
-void maxFlow (vector<vector<tint> > &capacidades, vector<vector<Arista> > &ladj, tint qNodos, tint source, tint terminal, vector<vector<tint> > &flowPath, tint &flow, tint maxPeso)
+// Hacer que devuelva el flow y no pasarlo como paremetro, tampoco inicializar flowPath
+tint maxFlow (vector<vector<tint> > const &capacidades, vector<vector<Arista> > ladj, tint qNodos, tint source, tint terminal, tint maxPeso)
 {
+	tint flow = 0;
+	vector<vector<tint> > flowPath (qNodos, vector<tint> (qNodos,0));
 	tint capacityFound = -1;
+	forn(i, ladj.size())
+		for (auto &a : ladj[i])
+			if (capacidades[i][a.v] != 0)
+				ladj[a.v].push_back(Arista(i,0));
 	while (capacityFound != 0)
 	{
 		vector<tint> path (qNodos,-1);
@@ -36,7 +43,6 @@ void maxFlow (vector<vector<tint> > &capacidades, vector<vector<Arista> > &ladj,
 		capacityFound = 0;
 		vector<tint> pathCapacity (qNodos,999999999999);
 		deque<tint> visit = {source};
-		bool flag = false;
 		while (!visit.empty())
 		{
 			tint actual = visit.front();
@@ -52,13 +58,9 @@ void maxFlow (vector<vector<tint> > &capacidades, vector<vector<Arista> > &ladj,
 					else
 					{
 						capacityFound = pathCapacity[vecino.v];
-						flag = true;
+						visit.clear();
+						break;
 					}
-				}
-				if (flag)
-				{
-					visit.clear();
-					break;
 				}
 			}
 		}
@@ -72,10 +74,10 @@ void maxFlow (vector<vector<tint> > &capacidades, vector<vector<Arista> > &ladj,
 			tint u = path[v];
 			flowPath[u][v] += capacityFound;
 			flowPath[v][u] -= capacityFound;
-			ladj[v].push_back(Arista(u,0)); 
 			v = u;
 		}
 	}
+	return flow;
 }
 
 int main()
@@ -106,22 +108,16 @@ int main()
 		}
 		tint k;
 		cin >> k;
-		tint flow = 0;
-		vector<vector<tint> > flowPathOrig (2*n+2,vector<tint> (2*n+2,0));
-		vector<vector<tint> > flowPath (2*n+2,vector<tint> (2*n+2,0));
 		tint cinf = 0;
-		maxFlow(capacidades,ladj,2*n+2,0,2*n+1,flowPath,flow,csup);
-		if (flow < k)
+		
+		if (maxFlow(capacidades,ladj,2*n+2,0,2*n+1,csup) < k)
 			cout << "Case " << test << ": " << "no solution" << endl;
 		else
 		{
 			while (csup - cinf > 1)
 			{
-				flow = 0;
-				flowPath = flowPathOrig;
 				tint maxPeso = (cinf + csup)/2;
-				maxFlow(capacidades,ladj,2*n+2,0,2*n+1,flowPath,flow,maxPeso);
-				if (flow < k)
+				if (maxFlow(capacidades,ladj,2*n+2,0,2*n+1,maxPeso) < k)
 					cinf = maxPeso;
 				else
 					csup = maxPeso;

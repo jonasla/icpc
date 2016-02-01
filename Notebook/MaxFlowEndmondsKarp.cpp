@@ -13,14 +13,20 @@ using namespace std;
 
 // Hay que tener definidas de antemano:
 // capacidades: Una matriz que en el lugar (i,j) guarda la capacidad que une al nodo i con j.
-// ladj: Para cada nodo tiene la lista de vecinos.
+// ladj: Para cada nodo tiene la lista de vecinos. Notar que al comenzar el codigo se agregan las aristas que faltan para la red residual
 // flow: Se debe dar un flujo inicial de 0
 // flowPath: Guarda en el lugar (i,j) la cantidad de flujo que efectivamente pasa por la arista que une i con j. Inicialmente debe ser una matriz de ceros.
 
 
-void maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, tint qNodos, tint source, tint terminal, vector<vector<tint> > &flowPath, tint &flow)
+tint maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, tint qNodos, tint source, tint terminal)
 {
+	tint flow = 0;
+	vector<vector<tint> > flowPath (qNodos, vector<tint> (qNodos,0));
 	tint capacityFound = -1;
+	forn(i, ladj.size())
+		for (auto &a : ladj[i])
+			if (capacidades[i][a] != 0)
+				ladj[a].push_back(i);
 	while (capacityFound != 0)
 	{
 		vector<tint> path (qNodos,-1);
@@ -28,9 +34,8 @@ void maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, t
 		
 		path[source] = -2;
 		capacityFound = 0;
-		vector<tint> pathCapacity (qNodos,999999999999);
+		vector<tint> pathCapacity (qNodos,999999999999); // Aca va una cota para el flujo del problema
 		deque<tint> visit = {source};
-		bool flag = false;
 		while (!visit.empty())
 		{
 			tint actual = visit.front();
@@ -46,13 +51,9 @@ void maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, t
 					else
 					{
 						capacityFound = pathCapacity[vecino];
-						flag = true;
+						visit.clear();
+						break;
 					}
-				}
-				if (flag)
-				{
-					visit.clear();
-					break;
 				}
 			}
 		}
@@ -66,8 +67,13 @@ void maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, t
 			tint u = path[v];
 			flowPath[u][v] += capacityFound;
 			flowPath[v][u] -= capacityFound;
-			ladj[v].push_back(u);
 			v = u;
 		}
 	}
+	return flow;
+}
+
+int main()
+{
+	return 0;
 }
