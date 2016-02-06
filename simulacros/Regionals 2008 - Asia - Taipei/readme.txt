@@ -5,7 +5,7 @@ https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&Itemid=8&cat
 
 4259: Dangerous Tunnels
 
-Descripción: Uno comienzo en un nodo de salida y para llegar a un nodo de 
+Descripción: Uno comienza en un nodo de salida y para llegar a un nodo de 
 llegada puede pasar por nodos intermedios. Para moverse entre nodos hay 
 aristas que indican el peso. Se define como peso de una camino de la salida 
 hasta la llegada como la arista más pesada del camino. Dado un conjunto de 
@@ -15,7 +15,22 @@ de ese conjunto como el mayor peso de los caminos que contiene.
 nodos en común, y en caso de existir, devolver el peso del menor conjunto de 
 k caminos que van de la salida a la llegada.
 
-Resolución: Próximamente (?).
+Resolución: Intentemos responder si existen k caminos distintos (que no comparten vertices 
+ni aristas) desde la salida a la llegada. Vamos a resolver ese problema con flujo. Para 
+ello armamos la siguiente red. Como no podemos pasar mas de una vez por vertice, separamos 
+cada vertice "v" en dos, digamos "v_in" y "v_out". Conectamos v_in y v_out con una arista 
+de capacidad 1, y toda arista que incidia en v ahora incide en v_in y cada arista que salia de 
+v ahora salve de v_out. Luego, si a cada arista original le asignamos una capacidad de 1, cada 
+unidad de flujo nos da un camino distinto desde la salida a la llegada. Luego, si el maximo 
+flujo que podemos mandar de la red es >= k, el problema tiene solucion y sino no. Si el flujo 
+maximo es < k se terminó el problema. Supongamos que es >= k, ahora resta saber el menor peso 
+que puede tener la arista más grande y que existan k caminos distintos. Para ello lo que hacemos 
+es hacer búsqueda binaria en la arista más grande, resolvemos el problema anterior, pero solo nos 
+permitimos utilizar aristas con peso <= maxPeso. Notar que usando solo aristas de peso <= 0 es imposible, 
+y por lo visto, usando aristas de peso <= "arista más pesada" es posible (el flujo máximo era >= k). Luego, 
+resolviendo una cantidad logarítmica de instancias de flujo, obtenemos el peso de la arista más pesada para 
+la que todavía se pueden elegir k caminos distintos disjuntos que van de la salida a la llegada, que es la 
+respuesta al problema.
 
 ////////////////////////////////////////////////////////////////////////
 
