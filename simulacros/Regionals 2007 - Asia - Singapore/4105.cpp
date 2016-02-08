@@ -86,14 +86,14 @@ int main(){
 			}
 		}
 		///
-		
+		/*
 		forn(i,T+1){
 			forn(j,R+2){
 				//cout << esta[i][j] << " ";
 				printf("%02d  ", dist[i][j]);
 			}cout << endl;
 		}
-		
+		*/
 		///
 		int res = -1;
 		forn(i,T+1){
