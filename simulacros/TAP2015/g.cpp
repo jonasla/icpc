@@ -48,10 +48,10 @@ int main()
 				forn(p,2) // miramos los dos vecinos anteriores (arriba e izquierda si existen) 
 				{
 					int sp = aux[p][0], cp = i*(1-p)+j*p, ip = aux[p][1], jp = aux[p][2], fp = aux[p][3]; // string que tocamos, indice en dicho string, movimiento en i, movimiento en j, flechita buena
-					if (cp > 0 && s[2][k-1] == s[sp][cp-1]) // Si no me fui de rango y me sirve para armar la palabra
+					if (cp > 0 && s[2][k-1] == s[sp][cp-1] && dp[i+ip][j+jp].num != cota) // Si no me fui de rango y me sirve para armar la palabra
 					{
-						Casilla ant = dp[i+ip][j+jp];
-						dp[i][j] = Casilla(min(dp[i][j].num,ant.num + min(int(ant.flecha != fp), 1-ant.comodin)), fp, dp[i][j].comodin + (dp[i][j].num == ant.num)); // Magia negra de la China
+						int flecha = dp[i+ip][j+jp].num + min(int(dp[i+ip][j+jp].flecha != fp), 1-dp[i+ip][j+jp].comodin);
+						dp[i][j] = Casilla(min(dp[i][j].num,flecha), p, dp[i][j].comodin + (1-p) + (dp[i][j].num == flecha)); // Magia negra de la China
 					}
 				}
 				dp[i][j].comodin = int(dp[i][j].comodin >= 2); // Magia negra de la India
@@ -68,6 +68,13 @@ int main()
 			cout << -1 << endl;
 		else
 			cout << ans << endl;
+		//forn(a,n+1)
+		//{
+		//	forn(b,n+1-a)
+		//		cout << "(" << dp[a][b].num << ", " << dp[a][b].flecha << ") ";
+		//	cout << endl;
+		//}
+			
 	}
 	return 0;
 }
