@@ -51,7 +51,8 @@ int main()
 					if (cp > 0 && s[2][k-1] == s[sp][cp-1] && dp[i+ip][j+jp].num != cota) // Si no me fui de rango y me sirve para armar la palabra
 					{
 						int flecha = dp[i+ip][j+jp].num + min(int(dp[i+ip][j+jp].flecha != fp), 1-dp[i+ip][j+jp].comodin);
-						dp[i][j] = Casilla(min(dp[i][j].num,flecha), p, dp[i][j].comodin + (1-p) + (dp[i][j].num == flecha)); // Magia negra de la China
+						if (flecha <= dp[i][j].num)
+							dp[i][j] = Casilla(flecha, p, dp[i][j].comodin + (1-p) + (dp[i][j].num == flecha)); // Magia negra de la China
 					}
 				}
 				dp[i][j].comodin = int(dp[i][j].comodin >= 2); // Magia negra de la India
@@ -68,13 +69,6 @@ int main()
 			cout << -1 << endl;
 		else
 			cout << ans << endl;
-		//forn(a,n+1)
-		//{
-		//	forn(b,n+1-a)
-		//		cout << "(" << dp[a][b].num << ", " << dp[a][b].flecha << ") ";
-		//	cout << endl;
-		//}
-			
 	}
 	return 0;
 }
