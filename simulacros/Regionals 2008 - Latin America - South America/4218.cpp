@@ -63,7 +63,8 @@ string toString (tint number)
 
 //
 // Idea: Armar el grafo que tiene a las confederaciones como vertice y a las ciudades como aristas no dirigidas que unen dos confederaciones 
-//			no necesariamente distintas (puede haber loops, si una ciudad pertenece a solo una confederacion)
+//			no necesariamente distintas (puede haber loops, si una ciudad pertenece a solo una confederacion) 
+//				Una vez que armamos este grafo la idea es encontrar un camino/ciclo euleariano.				
 //
 
 bool esConexo (vector<vector<int> > &ladj) // Es un BFS "de librito", pero al final devuelve si el grafo es conexo (salvo por nodos aislados)
