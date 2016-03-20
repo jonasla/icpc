@@ -103,17 +103,20 @@ int main()
 						TOTAL += D0+1;
 					}
 				}else if(ordenDragon.size() > 1){		// >= 2
-					int sumaStart = ordenDragon[0].se;
-					int idx = 1;
-					
-					while(idx < (int)ordenDragon.size() && sumaStart <= ordenDragon[idx].fi){
-						sumaStart += ordenDragon[idx].se;
-						idx++;
+					int idx = 0;
+					int suma = ordenDragon[0].se;
+					while(idx<(ordenDragon.size()-1) && suma<=ordenDragon[idx].fi)
+						suma+=ordenDragon[++idx].se;
+					if(idx==(ordenDragon.size()-1)){//llego al final
+							if(suma<=ordenDragon[idx].fi)
+								TOTAL+=suma;
+							else
+								TOTAL+=max(suma-ordenDragon[idx].se,ordenDragon[idx].fi+1);
 					}
-					if(idx == (int)ordenDragon.size()){		// llegue final
-						TOTAL += min(sumaStart, ordenDragon[0].fi+1);
-					}else{
-						TOTAL += min(sumaStart, ordenDragon[idx-1].fi+1);
+					else if(idx==0) //se rompio al principio
+						TOTAL+=ordenDragon[0].fi+1;
+					else{ //se rompio en el medio
+						TOTAL+=max(suma-ordenDragon[idx].se,ordenDragon[idx].fi+1);
 					}
 				}
 			}
