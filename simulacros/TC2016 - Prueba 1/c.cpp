@@ -9,7 +9,7 @@ using namespace std;
 
 typedef long long int tint;
 
-const tint maxN = 2000000;
+const tint maxN = 4000000;
 tint p[maxN];
 vector<tint> primos = {2};
 
@@ -38,46 +38,40 @@ int main()
 	{
 		tint n;
 		cin >> n;
-		bool ganaMolek = false;
-		tint ans = -1;
 		if (n == 1)
 			cout << "Vasha" << endl << 0 << endl;
 		else
 		{
-			if (n < maxN)
-			{
-				if (!p[n])
-					cout << "Vasha" << endl << 0 << endl;
-				else // tiene 2 divisores
+			tint cantidadPrimosDividen = 0, ans = 1, ansPosta = 1;
+			tint c = 0;
+			for (auto x : primos)
+			{	
+				while (n%x == 0)
 				{
-					for(auto x : primos)
+					n/=x;
+					cantidadPrimosDividen++;
+					if (c < 2)
 					{
-						if (x < n && n % x == 0 && !p[n/x] ) // gana Molek
-						{
-							cout << "Molek" << endl;
-							ganaMolek = true;
-							break;
-						}
-						else if (x*x < n && n % (x*x) == 0)
-							ans = x*x;
+						ans *= x;
+						c++;
 					}
-					if (!ganaMolek)
-						cout << "Vasha" << endl << n << "->" <<  ans << endl;
 				}
+				if (ans > 1 && c == 2)
+					ansPosta = ans;
+				if (n < x)
+					break;
 			}
+			if (n > maxN)
+				cantidadPrimosDividen++;
+			//cout << "-------\n-----" << endl;
+			//cout << "CANTIDAD PRIMOS DIVIDEN = " << cantidadPrimosDividen << endl;
+			if (cantidadPrimosDividen == 2)
+				cout << "Molek" << endl;
+			else if (cantidadPrimosDividen == 1)
+				cout << "Vasha" << endl << 0 << endl;
 			else
-			{
-				tint cantidadPrimosDividen = 0;
-				for (auto x : primos)
-				{
-					while (n%x == 0)
-					{
-						n /= x;
-						cantidadPrimosDividen++;
-					}
-				}
-			}
+				cout << "Vasha" << endl << ansPosta << endl;
 		}
 	}
-	
+	return 0;
 }
