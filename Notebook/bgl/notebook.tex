@@ -1,0 +1,271 @@
+% LaTeXar con :
+%  pdflatex notebook.tex
+% o bien,
+%  latex notebook.dvi
+%  dvipdfm notebook.dvi
+%
+%	" The PDF file may contain up to 25 pages of reference material, single-sided,
+%   letter or A4 size, with text and illustrations readable by a person with
+%   correctable eyesight without magnification from a distance of 1/2 meter. "
+%
+\documentclass[10pt,landscape,twocolumn,a4paper,notitlepage]{article}
+\usepackage{hyperref}
+\usepackage[spanish, activeacute]{babel}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{svnkw}
+\usepackage{rotating}
+
+%\svnidlong{$HeadURL: http://tpsh.exp.dc.uba.ar/svn/adeymo-acm/notebook/notebook.tex $}{$LastChangedDate: 2011-05-22 22:49:20 -0300 (dom, 22 may 2011) $}{$LastChangedRevision: 1 $}{$LastChangedBy: jonaz $}
+\def\revision{\svnrev}
+
+%%% Márgenes
+\setlength{\columnsep}{0.25in}    % default=10pt
+\setlength{\columnseprule}{0.5pt}    % default=0pt (no line)
+
+\addtolength{\textheight}{2.35in}
+\addtolength{\topmargin}{-0.9in}     % ~ -0.5 del incremento anterior
+
+\addtolength{\textwidth}{1.1in}
+\addtolength{\oddsidemargin}{-0.60in} % -0.5 del incremento anterior
+\setlength{\headwidth}{\textwidth}
+\addtolength{\headwidth}{0.1in}
+
+\setlength{\headsep}{0.08in}
+\setlength{\parskip}{0in}
+\setlength{\headheight}{15pt}
+\setlength{\parindent}{0mm}
+
+%%% Encabezado y pie de página
+\pagestyle{fancy}
+\fancyhead[LO]{\leftmark\ -\ \rightmark}
+%\fancyhead[C]{\textbf{BGL-UBA}}
+\fancyhead[RO]{\textbf{BGL-UBA} - P\'agina \thepage\ de \pageref{LastPage}\ \begin{rotate}{270}\hspace{.8em}\underline{\textbf{Universidad de Buenos Aires - FCEN -- BGL}\hspace{4.1in}\ }\end{rotate}}
+\fancyfoot{}
+\fancyfoot[RO]{\begin{rotate}{270}\hspace{-10em}\textbf{Page \thepage\ of \pageref{LastPage}}\end{rotate}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\footruleskip}{0.2in}
+
+%%% Configuración de Listings
+\lstloadlanguages{C++}
+\lstnewenvironment{code}
+	{%\lstset{	numbers=none, frame=lines, basicstyle=\small\ttfamily, }%
+	 \csname lst@SetFirstLabel\endcsname}
+	{\csname lst@SaveFirstLabel\endcsname}
+\lstset{% general command to set parameter(s)
+	language=C++, basicstyle=\small\ttfamily, keywordstyle=\slshape,
+	emph=[1]{tipo,usa}, emphstyle={[1]\sffamily\bfseries},
+	morekeywords={tint,forn,forsn},
+	basewidth={0.47em,0.40em},
+	columns=fixed, fontadjust, resetmargins, xrightmargin=5pt, xleftmargin=15pt,
+	flexiblecolumns=false, tabsize=2, breaklines,	breakatwhitespace=false, extendedchars=true,
+	numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=9pt,
+	frame=l, framesep=3pt,
+}
+
+%%% Macros
+\def\nbtitle#1{\begin{Large}\begin{center}\textbf{#1}\end{center}\end{Large}}
+\def\nbsection#1{\section{#1}}
+\def\nbsubsection#1{\subsection{#1}}
+\def\nbcoment#1{\begin{small}\textbf{#1}\end{small}}
+
+\newcommand{\comb}[2]{\left( \begin{array}{c} #1 \\ #2 \end{array}\right)}
+
+\begin{document}
+
+\tableofcontents\newpage
+
+%%% El texto propiamente dicho
+\nbtitle{BGL-UBA - Reference}
+\section{Cosas}
+
+\subsection{Segment Tree (Guty)}
+%\nbcoment{}
+\begin{code}
+// Nodo del segment tree
+struct Nodo{
+	tint x;
+	Nodo (tint xx)
+		x = xx;
+};
+// Operacion del segment tree : tiene que ser ASOCIATIVA
+Nodo op (Nodo n1, Nodo n2){
+	return Nodo(n1.x+n2.x);
+}
+vector<Nodo> buildSegTree (vector<Nodo> &v ){
+	// Completa el tamanho
+	tint k = 4, n = v.size();
+	while (k < 2*n)
+		k *= 2;
+	// Rellena las hojas
+	vector<Nodo> seg (k, Nodo(0));
+	forn(i,n)
+		seg[k/2+i] = v[i];
+	// Completa los padres
+	while (k > 0)	{
+		seg[(k-1)/2] = op(seg[k-1],seg[k-2]);
+		k -= 2;
+	}		
+	return seg; 
+}
+// i es el indice de [0,n) en el arreglo original
+// Nodo es lo que queremos poner ahora como hoja
+void update(tint i, Nodo nodo,vector<Nodo> &seg){
+	tint k = seg.size()/2 + i;
+	seg[k] = nodo;
+	while (k > 0){
+		seg[k >> 1] = op(seg[k],seg[k^1]);
+		k /= 2;
+	}
+}
+Nodo queryAux(tint k, tint l, tint r, tint i, tint j, vector<Nodo> &seg){
+	if (i <= l && r <= j)
+		return seg[k];
+	if (r <= i or l >= j)
+		return 0; // Aca va el NEUTRO de la funcion "op"
+	Nodo a = queryAux(2*k,l,(l+r)/2,i,j,seg);
+	Nodo b = queryAux(2*k+1,(l+r)/2,r,i,j,seg);
+	return op(a,b);
+	
+}
+// i,j son los indices del arreglo del que se hace la query
+// la query se hace en [i,j)
+Nodo query(tint i, tint j, vector<Nodo> &seg){
+	return queryAux(1,0,seg.size()/2,i,j,seg);
+}
+int main(){
+	tint n = 15;
+	vector<Nodo> v (n, Nodo(0));
+	forn(i,n)
+		v[i] = Nodo((3*(i+1))% 7 - 9*(i-4)%13);
+	vector<Nodo> seg = buildSegTree(v);
+	imprimirVector(v);
+	cout << query(3,11,seg).x << "\n";
+	return 0;
+}
+\end{code}
+\subsection{Inverso modular Primo y PotLog (Guty)}
+\begin{code}
+const tint nmod = 1000000007; // o el primo que deseamos
+
+vector<tint> desBaseB (tint n, tint b){ // Calcula el desarrollo de n en base b
+	if (n == 0)
+		return {0};
+	vector<tint> des;
+	while (n > 0){
+		des.push_back(n%b);
+		n /= b;
+	}
+	reverse(des.begin(),des.end());
+	return des;
+}
+tint potLogMod (tint x, tint y){ // Calcula: (x^y) mod nmod
+	tint ans = 1;
+	while (y > 0){
+		if (y % 2)
+			ans = (x * ans) % nmod;
+		x = (x * x) % nmod;
+		y /= 2;
+	}
+	return ans;
+}
+tint invLog(tint a){// Solo funciona si nmod es primo y devuelve un numero b tal que: (a*b) = 1 mod nmod 
+	return potLogMod(a,nmod-2);
+}
+\end{code}
+\subsection{Dijkstra (Guty)}
+\begin{code}
+const int INF = 1000000000; // Aca va una cota que funque para el problema en vez de 1000000000
+struct Arista{
+	tint v1,v2,peso;
+	Arista(tint vv1, tint vv2, tint pp){
+		v1 = vv1;
+		v2 = vv2;
+		peso = pp;
+	}
+};
+bool operator < (Arista a1, Arista a2){
+	return make_tuple(a1.peso,a1.v1,a1.v2) > make_tuple(a2.peso,a2.v1,a2.v2);
+}
+vector<tint> dijkstra (vector<vector<tint> > &ladj, vector<vector<tint> > &w, tint s){ // Devuelve un vector d, tal que d[v] es la minima distancia de "s" a "v"
+	tint n = ladj.size();
+	vector<tint> d (n,INF); 
+	priority_queue<Arista> v;
+	d[s] = 0;
+	for(auto vecino : ladj[s])
+		v.push(Arista(s,vecino,w[s][vecino]));
+	while (!v.empty()){
+		if (d[v.top().v2] == INF or d[v.top().v1] + v.top().peso <= d[v.top().v2]){
+			Arista e = v.top();
+			v.pop();
+			d[e.v2] = d[e.v1] + e.peso;
+			for(auto vecino : ladj[e.v2])
+				v.push(Arista(e.v2,vecino,w[e.v2][vecino]));
+		}else
+			v.pop();
+	}
+	return d;
+}
+\end{code}
+\subsection{Edmonds Karp (Guty)}
+\begin{code}
+// Hay que tener definidas de antemano:
+// capacidades: Una matriz que en el lugar (i,j) guarda la capacidad que une al nodo i con j.
+// ladj: Para cada nodo tiene la lista de vecinos. Notar que al comenzar el codigo se agregan las aristas que faltan para la red residual
+// flow: Se debe dar un flujo inicial de 0
+// flowPath: Guarda en el lugar (i,j) la cantidad de flujo que efectivamente pasa por la arista que une i con j. Inicialmente debe ser una matriz de ceros.
+
+const tint INF = 999999999999;
+
+tint maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, tint qNodos, tint source, tint terminal){
+	tint flow = 0;
+	vector<vector<tint> > flowPath (qNodos, vector<tint> (qNodos,0));
+	tint capacityFound = -1;
+	forn(i, ladj.size())
+		for (auto &a : ladj[i])
+			if (capacidades[i][a] != 0)
+				ladj[a].push_back(i);
+	while (capacityFound != 0){
+		vector<tint> path (qNodos,-1);
+		// Aca empieza el bfs
+		
+		path[source] = -2;
+		capacityFound = 0;
+		vector<tint> pathCapacity (qNodos,INF); // Aca va una cota para el flujo del problema
+		deque<tint> visit = {source};
+		while (!visit.empty()){
+			tint actual = visit.front();
+			visit.pop_front();
+			for (auto vecino : ladj[actual]){
+				if (capacidades[actual][vecino] > flowPath[actual][vecino] && path[vecino] == -1 ){
+					path[vecino] = actual;
+					pathCapacity[vecino] = min(pathCapacity[actual],capacidades[actual][vecino] - flowPath[actual][vecino]);
+					if (vecino != terminal)
+						visit.push_back(vecino);
+					else{
+						capacityFound = pathCapacity[vecino];
+						visit.clear();
+						break;
+					}
+				}
+			}
+		}
+		// Aca termina el bfs
+		if (capacityFound == 0)
+			break;
+		flow += capacityFound;
+		tint v = terminal;
+		while (v != source){
+			tint u = path[v];
+			flowPath[u][v] += capacityFound;
+			flowPath[v][u] -= capacityFound;
+			v = u;
+		}
+	}
+	return flow;
+}
+\end{code}
+\end{document}
