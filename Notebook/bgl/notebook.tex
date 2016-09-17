@@ -268,4 +268,104 @@ tint maxFlow (vector<vector<tint> > &capacidades, vector<vector<tint> > &ladj, t
 	return flow;
 }
 \end{code}
+\subsection{Trie (Jonaz)}
+\begin{code}
+const int MAXN = 100000;
+int NODS = 1;
+struct trie {
+    map<char, int> sig;
+    char c;
+    bool final;
+};
+trie t[MAXN];
+void resetNode(int i){
+    t[i].sig.clear();
+    t[i].final = false;
+}
+void initT(){
+    forn(i,nods){
+        resetNode(i);
+    }
+    NODS = 1;
+}
+void insertar(string st){
+	int pos=0;
+	forn(i,st.size()){
+		if(t[pos].sig.find(st[i]) == t[pos].sig.end()){
+			t[pos].sig[st[i]] = NODS;
+			resetNode(nods);
+			t[nods].c = st[i];
+			NODS++;
+		}
+		pos = t[pos].sig[st[i]];
+	}
+    t[pos].final = true;
+}
+\end{code}
+\subsection{Geometría Basica Vectorial (Guty)}
+\begin{code}
+struct Punto{
+	double x,y;
+	Punto (double xx, double yy){ x = xx; y = yy; }
+};
+Punto operator + (Punto p1, Punto p2){
+	return Punto(p1.x+p2.x, p1.y+p2.y);
+}
+Punto operator - (Punto p1, Punto p2){
+	return Punto(p1.x-p2.x, p1.y-p2.y);
+}
+Punto operator * (ldouble k, Punto p){
+	return Punto(k*p.x, k*p.y);
+}
+double operator * (Punto p1, Punto p2){
+	return p1.x*p2.x + p1.y*p2.y;
+}
+double norma(Punto p){
+	return sqrt(p*p);
+}
+double pcruz (Punto p1, Punto p2){
+	return p1.x*p2.y - p2.x*p1.y;
+}
+double areaTriangulo(Punto a, Punto b, Punto c){
+	return abs(pcruz(b-a,c-a))/2.0;
+}
+double areaParalelogramo(Punto a, Punto b, Punto c){
+	return abs(pcruz(b-a,c-a));
+}
+\end{code}
+\subsection{Criba y Factorizacion (Jonaz)}
+\begin{code}
+const int MAXN = 10000000;  // hasta ahi se la re banca, y uno mas tambien 
+// si p[i] = 0      => i es primo
+// si p[i] = j != 0 => j divide a i (y j primo)
+int p[MAXN];
+// arma la criba
+void criba() {
+	for(int i=4; i<MAXN; i+=2) p[i]=2;
+	for(int i=3; i<MAXN; i+=2)
+		if(!p[i]) for(int j=2*i; j<MAXN; j+=i) p[j] = i;
+}
+// devuelve una factorizacion de N del tipo <primo,exponente>
+map<int,int> factorizar(int N){
+    map<int,int> res;
+    while(p[N]){
+        res[p[N]]++;
+        N /= p[N];
+    }
+    res[N]++;
+    return res;
+}
+// devuelve vector con los factores primos que dividen a N en orden
+vector<int> factorizarLista(int N){
+    vector<int> res;
+    while(p[N]){
+        res.push_back(p[N]);
+        N /= p[N];
+    }
+    res.push_back(N);
+    // puede omitirse si no interesa que esten ordenados
+    sort(res.begin(), res.end());
+    return res;
+}
+\end{code}
 \end{document}
