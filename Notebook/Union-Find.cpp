@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <valarray>
 #include <random>
+#include <iomanip>
+
 
 typedef long long tint;
 typedef unsigned long long utint;
@@ -32,6 +34,8 @@ typedef long double ldouble;
 
 
 using namespace std;
+
+
 
 void imprimirVector (vector<tint> v)
 {
@@ -62,38 +66,38 @@ string toString (tint number)
     return  ostr.str();
 }
 
-const tint INFINITO = 1e15;
-
-void dijkstra (tint comienzo, vector<vector<pair<tint,tint> > > &ladj, vector<tint> &distance, vector<vector<tint> > &parent)
+void inicializar (vector<tint> &representante, vector<tint> &tamanho)
 {
-	priority_queue <pair<tint,tint> > q; // {-peso,indice}
-	tint n = distance.size();
+	tint n = representante.size();
 	forn(i,n)
-		distance[i] = (i != comienzo)*INFINITO;
-	vector<tint> procesado (n,0);
-	q.push({0,comienzo});
-	while (!q.empty())
 	{
-		tint actual = q.top().second;
-		q.pop();
-		if (!procesado[actual])
-		{
-			procesado[actual] = 1;
-			for (auto vecino : ladj[actual])
-			{
-				if (distance[actual] + vecino.second < distance[vecino.first])
-				{
-					distance[vecino.first] = distance[actual] + vecino.second;
-					q.push({-distance[vecino.first],vecino.first});
-					parent[vecino.first] = {actual};
-				}
-				else if (distance[actual] + vecino.second == distance[vecino.first])
-					parent[vecino.first].push_back(actual);
-			}
-		}
-		
-	}
+		representante[i] = i;
+		tamanho[i] = 1;
+	};
 }
+
+tint find (tint x, vector<tint> &representante)
+{
+	while (x != representante[x])
+		x = representante[x];
+	return x;
+}
+
+bool same (tint a, tint b, vector<tint> &representante)
+{
+	return (find(a,representante) == find(b,representante));
+}
+
+void unite (tint a, tint b, vector<tint> &representante, vector<tint> &tamanho)
+{
+	a = find(a,representante);
+	b = find(b,representante);
+	if (tamanho[a] < tamanho[b])
+		swap(a,b);
+	tamanho[a] += tamanho[b];
+	representante[b] = a;	
+}
+
 
 int main()
 {
@@ -102,8 +106,12 @@ int main()
 	#endif
 	ios_base::sync_with_stdio(0);
 	cin.tie(NULL);
+	tint n = 8;
+	vector<tint> representante (n), tamanho (n);
+	inicializar(representante,tamanho);
 	
-	// ladj : Por cada vertice, un par {indice,peso}
-	// 
 	return 0;
 }
+
+
+

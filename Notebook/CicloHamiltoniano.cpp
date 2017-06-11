@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <valarray>
 #include <random>
+#include <iomanip>
+
 
 typedef long long tint;
 typedef unsigned long long utint;
@@ -32,6 +34,8 @@ typedef long double ldouble;
 
 
 using namespace std;
+
+
 
 void imprimirVector (vector<tint> v)
 {
@@ -64,36 +68,28 @@ string toString (tint number)
 
 const tint INFINITO = 1e15;
 
-void dijkstra (tint comienzo, vector<vector<pair<tint,tint> > > &ladj, vector<tint> &distance, vector<vector<tint> > &parent)
+tint minimumHamiltonianCycle (vector<vector<tint> > &d)
 {
-	priority_queue <pair<tint,tint> > q; // {-peso,indice}
-	tint n = distance.size();
-	forn(i,n)
-		distance[i] = (i != comienzo)*INFINITO;
-	vector<tint> procesado (n,0);
-	q.push({0,comienzo});
-	while (!q.empty())
+	tint r = d.size(), minHam = INFINITO;
+	if (r > 1)
 	{
-		tint actual = q.top().second;
-		q.pop();
-		if (!procesado[actual])
-		{
-			procesado[actual] = 1;
-			for (auto vecino : ladj[actual])
-			{
-				if (distance[actual] + vecino.second < distance[vecino.first])
-				{
-					distance[vecino.first] = distance[actual] + vecino.second;
-					q.push({-distance[vecino.first],vecino.first});
-					parent[vecino.first] = {actual};
-				}
-				else if (distance[actual] + vecino.second == distance[vecino.first])
-					parent[vecino.first].push_back(actual);
-			}
-		}
+		vector<vector<tint> > dp ((1 << r), vector<tint> (r,INFINITO));
+		dp[1][0] = 0;
+		for(tint mask = 1; mask < (1 << r); mask += 2)
+		forn(i,r)
+			if ( (i > 0) && (mask & (1 << i)) && (mask & 1) )
+				forn(j,r)
+					if ((i != j) && (mask & (1 << j)))
+						dp[mask][i] = min(dp[mask][i],dp[mask ^ (1 << i)][j] + d[j][i]);
 		
+		forsn(i,1,r)
+			minHam = min(minHam,dp[(1 << r) - 1][i] + d[i][0]);
 	}
+	else
+		minHam = d[0][0];
+	return minHam;
 }
+
 
 int main()
 {
@@ -102,8 +98,8 @@ int main()
 	#endif
 	ios_base::sync_with_stdio(0);
 	cin.tie(NULL);
-	
-	// ladj : Por cada vertice, un par {indice,peso}
-	// 
 	return 0;
 }
+
+
+

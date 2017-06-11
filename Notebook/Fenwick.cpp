@@ -16,7 +16,6 @@
 #include <sstream>
 #include <stdio.h>
 #include <valarray>
-#include <random>
 
 typedef long long tint;
 typedef unsigned long long utint;
@@ -32,6 +31,8 @@ typedef long double ldouble;
 
 
 using namespace std;
+
+
 
 void imprimirVector (vector<tint> v)
 {
@@ -62,38 +63,28 @@ string toString (tint number)
     return  ostr.str();
 }
 
-const tint INFINITO = 1e15;
 
-void dijkstra (tint comienzo, vector<vector<pair<tint,tint> > > &ladj, vector<tint> &distance, vector<vector<tint> > &parent)
+void add (tint k, tint x, vector<tint> &fenwick)
 {
-	priority_queue <pair<tint,tint> > q; // {-peso,indice}
-	tint n = distance.size();
-	forn(i,n)
-		distance[i] = (i != comienzo)*INFINITO;
-	vector<tint> procesado (n,0);
-	q.push({0,comienzo});
-	while (!q.empty())
+	tint n = fenwick.size() -1;
+	while (k <= n)
 	{
-		tint actual = q.top().second;
-		q.pop();
-		if (!procesado[actual])
-		{
-			procesado[actual] = 1;
-			for (auto vecino : ladj[actual])
-			{
-				if (distance[actual] + vecino.second < distance[vecino.first])
-				{
-					distance[vecino.first] = distance[actual] + vecino.second;
-					q.push({-distance[vecino.first],vecino.first});
-					parent[vecino.first] = {actual};
-				}
-				else if (distance[actual] + vecino.second == distance[vecino.first])
-					parent[vecino.first].push_back(actual);
-			}
-		}
-		
+		fenwick[k] += x;
+		k += (k & -k);
 	}
 }
+
+tint sum (tint k, vector<tint> &fenwick) // sum[1..k]
+{
+	tint s = 0;
+	while (k >= 1)
+	{
+		s += fenwick[k];
+		k -= (k & -k);
+	}
+	return s;
+}
+ 
 
 int main()
 {
@@ -102,8 +93,22 @@ int main()
 	#endif
 	ios_base::sync_with_stdio(0);
 	cin.tie(NULL);
+	tint n;
+	cin >> n;
+	vector<tint> fenwick (n+1,0);
+	forn(i,n)
+	{
+		tint a;
+		cin >> a;
+		add(i+1,a,fenwick);
+	}
+	imprimirVector(fenwick);
+	forn(i,n)
+		cout << sum(i,fenwick) << "\n";
 	
-	// ladj : Por cada vertice, un par {indice,peso}
-	// 
+	
 	return 0;
 }
+
+
+

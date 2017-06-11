@@ -33,6 +33,8 @@ typedef long double ldouble;
 
 using namespace std;
 
+
+
 void imprimirVector (vector<tint> v)
 {
 	if (!v.empty())
@@ -62,38 +64,34 @@ string toString (tint number)
     return  ostr.str();
 }
 
-const tint INFINITO = 1e15;
+// CRIBA
 
-void dijkstra (tint comienzo, vector<vector<pair<tint,tint> > > &ladj, vector<tint> &distance, vector<vector<tint> > &parent)
+const tint maxN = 1000500;
+int p[maxN + 1] = {1, 1};
+
+
+
+map<tint,tint> factorizar (tint n)
 {
-	priority_queue <pair<tint,tint> > q; // {-peso,indice}
-	tint n = distance.size();
-	forn(i,n)
-		distance[i] = (i != comienzo)*INFINITO;
-	vector<tint> procesado (n,0);
-	q.push({0,comienzo});
-	while (!q.empty())
-	{
-		tint actual = q.top().second;
-		q.pop();
-		if (!procesado[actual])
-		{
-			procesado[actual] = 1;
-			for (auto vecino : ladj[actual])
-			{
-				if (distance[actual] + vecino.second < distance[vecino.first])
-				{
-					distance[vecino.first] = distance[actual] + vecino.second;
-					q.push({-distance[vecino.first],vecino.first});
-					parent[vecino.first] = {actual};
-				}
-				else if (distance[actual] + vecino.second == distance[vecino.first])
-					parent[vecino.first].push_back(actual);
-			}
-		}
-		
+	map<tint,tint> f;
+	while (n > 1) 
+	{ 
+		f[p[n]]++;
+		n /= p[n]; 
 	}
+	return f;
 }
+
+//tint phi[maxN]; // DAR CHANGUI DE 500 O MAS
+				
+// PHI
+//for (tint i = 0; i < maxN; i++) 
+//		phi[i] = i;	
+//	for (tint i = 1; i < maxN; i++)
+//		for (tint j = 2 * i; j < maxN; j += i)
+//			phi[j] -= phi[i];
+
+
 
 int main()
 {
@@ -102,8 +100,12 @@ int main()
 	#endif
 	ios_base::sync_with_stdio(0);
 	cin.tie(NULL);
-	
-	// ladj : Por cada vertice, un par {indice,peso}
-	// 
+	for (int i = 1; i <= maxN; ++i)
+	if (p[i] == 1)
+		for (int j = i; j <= maxN; j += i)
+			p[j] = i;
+
 	return 0;
 }
+
+

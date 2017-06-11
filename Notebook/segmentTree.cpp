@@ -64,7 +64,7 @@ Nodo queryAux(tint k, tint l, tint r, tint i, tint j, vector<Nodo> &seg)
 	if (i <= l && r <= j)
 		return seg[k];
 	if (r <= i or l >= j)
-		return 0; // Aca va el NEUTRO de la funcion "op"
+		return Nodo(0); // Aca va el NEUTRO de la funcion "op"
 	Nodo a = queryAux(2*k,l,(l+r)/2,i,j,seg);
 	Nodo b = queryAux(2*k+1,(l+r)/2,r,i,j,seg);
 	return op(a,b);
@@ -86,7 +86,7 @@ void imprimirVector (vector<Nodo> v)
 {
 	if (!v.empty())
 	{ 
-		int p = v.size();
+		tint p = v.size();
 		cout << "[";
 		forn(i,p-1)
 			cout << v[i].x << ",";
