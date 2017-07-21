@@ -1,58 +1,17 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <unordered_map>
 #include <map>
+#include <iomanip>
+
 
 using namespace std;
 
 typedef long long tint;
-typedef vector<tint> vi;
+typedef long double ldouble;
 
 #define forn(i,n) for (tint i = 0; i < (tint) n; i++)
 #define forsn(i,s,n) for (tint i = (s); i < (tint) n; i++)
-
-//~ const tint MAXN = 100050;
-//~ tint p[MAXN];
-//~ vi primos;
-
-//~ void criba() {
-	//~ for(int i=4; i<MAXN; i+=2) p[i] = 2;
-	//~ for(int i=3; i*i<MAXN; i+=2)
-		//~ if (!p[i]) for (int j=i*i; j<MAXN; j+=2*i) p[j] = i;
-//~ }
-
-//~ void prims() {
-	//~ forsn(i,2,MAXN) if (!p[i]) primos.push_back(i);
-	//~ reverse(primos.begin(), primos.end());
-//~ }
-
-//~ vi fact(tint n) {
-	//~ vi r;
-	//~ for(auto e : primos) {
-		//~ while(n % e == 0) {
-			//~ r.push_back(e);
-			//~ n /= e;
-		//~ }
-		//~ if (e*e > n) break;
-	//~ }
-	//~ if (n!=1) r.push_back(n);
-	//~ return r;
-//~ }
-
-void divs(tint cur, vi &f, tint s, tint e, vi &d) {
-	if (s == e) d.push_back(cur);
-	else {
-		tint m;
-		for (m=s+1; m<e && f[m] == f[s]; m++);
-		for (int i=s; i<=m; i++) {
-			divs(cur, f, m, e, d);
-			cur *= f[s];
-		}
-	}
-}
-
-//////////////////////////////////////////////////
 
 const tint semilla = 38532164;
 
@@ -161,14 +120,14 @@ tint gcd (tint a, tint b)
 
 
 //~ void factorizar (tint n, unordered_map<tint,tint> &f)
-void factorizar (tint n, vi &f)
+void factorizar (tint n, map<tint,tint> &f)
 {
 	while (n > 1)
 	{
 		if (esPrimoRM(n))
 		{
-			//~ f[n]++;
-			f.push_back(n);
+			f[n]++;
+			//~ f.push_back(n);
 			n /= n;
 		}
 		else
@@ -195,80 +154,40 @@ void factorizar (tint n, vi &f)
 	}
 }
 
-
-//////////////////////////////////////////////////
-
-unordered_map<tint, tint> sols;
-vi dameDivs(tint N) {
-	vi d;
-	vi f;
-	factorizar(N,f);
-	sort(f.begin(), f.end());
-	
-	divs(1, f, 0, f.size(), d);
-	sort(d.begin(), d.end());
-	return d;
-}
-
-tint dameSol(tint N) { 
-	if (sols.find(N) != sols.end()) return sols[N];
-	else {
-		vi div = dameDivs(N);
-		
-		if (div.size() <= 2) {
-			for (auto d : div) {
-				sols[d] = 1;
-			}
-			return 1;
-		} else {
-			tint lasol = 0;
-			for (auto d : div) {
-				if (d == 1) continue;
-				if (d*d > N) break;
-				tint s1 = d;
-				tint s2 = N / d;
-				
-				tint sol1 = dameSol(s1);
-				tint sol2 = dameSol(s2);
-				
-				tint r = sol1 * sol2;
-				if (s1 != s2) r*=2;
-				lasol += r;
-			}
-			sols[N] = lasol;
-			return lasol;
-		}
-	}
-}
-
+vector<ldouble> fact (65);
 
 
 int main()
 {
-	//~ criba();
-	//~ prims();
 	
-	//~ forn(i,10) cout << primos[i] << endl;
+	ios::sync_with_stdio(false);
+	cin.tie(NULL);
+	fact[0] = 1;
+	forn(i,64)
+		fact[i+1] = fact[i]*ldouble(i+1);
 	
-	//~ forsn(i,2,16) cout << i << " " << p[i] << endl;
-
-	//~ vi div;
-	//~ vi f;
-	//~ factorizar(10000019*12, f);
-	//~ for (auto e : f) cout << e << endl;
-	//~ cout << endl;
-	
-	//~ divs(1, f, 0, f.size(), div);
-	//~ for(auto e : div) {
-		//~ cout << e << endl;
-	//~ }
-	
-	tint T; cin >> T;
-	while(T--) {
-		tint N; cin >> N;
+	tint t;
+	cin >> t;
+	forn(caso,t)
+	{
+		tint n;
+		cin >> n;
+		map<tint,tint> f;
+		factorizar(n,f);
+		ldouble sumaK = 0, producto = 1;
+		for (auto x : f)
+		{
+			sumaK += ldouble(x.second);
+			producto *= fact[x.second];
+		}
+		ldouble p = 1;
+		for (tint r = sumaK; r <= 2*(sumaK-1); r++)
+			p *= ldouble(r);
+		tint ans = p/producto + 0.5;
 		
-		cout << dameSol(N) << endl;
+		cout << ans << "\n";
+		
 		
 	}
-	return 0;
+	
 }

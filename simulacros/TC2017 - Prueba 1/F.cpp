@@ -32,44 +32,56 @@ bool porAzul (Card c1, Card c2)
 
 const tint INFINITO = 1e15;
 
-tint inversiones (vector<tint> &v, tint s, tint e)
+pair<vector<tint>,tint> inversiones(vector<tint> v)
 {
-	if (e - s == 1)
-		return 0;
-	else if (e - s == 2)
-		return v[s] > v[e-1];
+	if (v.size() <= 1)
+		return {v,0};
 	else
 	{
-		tint med = (s+e)/2;
-		tint s1 = inversiones(v,s,med), s2 = inversiones(v,med,e);
+		tint n = v.size();
+		tint med = n/2;
 		vector<tint> v1,v2;
-		forsn(i,s,med)
+		forn(i,med)
 			v1.push_back(v[i]);
-		forsn(i,med,e)
+		forsn(i,med,n)
 			v2.push_back(v[i]);
-		sort(v1.begin(),v1.begin());
-		sort(v2.begin(),v2.begin());
-		tint i = v1.size() - 1, j = v2.size() - 1;
-		tint ans = 0;
-		while (i >= 0)
+		//~ cout << v1.size() << " " << v2.size() << endl;
+		pair<vector<tint>,tint> r1 = inversiones(v1), r2 = inversiones(v2);
+		tint f1 = 0, f2 = 0, t1 = r1.first.size(), t2 = r2.first.size();
+		vector<tint> aux;
+		while(f1 < t1 && f2 < t2)
 		{
-			while (j >= 0 && v1[i] < v2[j])
-				j--;
-			ans += (j+1);
-			i--;
+			if (r1.first[f1] <= r2.first[f2])
+				aux.push_back(r1.first[f1++]);
+			else
+				aux.push_back(r2.first[f2++]);
 		}
-		return ans + s1 + s2;
+		while(f1 < t1)
+			aux.push_back(r1.first[f1++]);
+		while(f2 < t2)
+			aux.push_back(r2.first[f2++]);
+			
+		tint ans = r1.second + r2.second;
+		f1--;
+		f2--;
+		while (f1 >= 0)
+		{
+			while(f2 >= 0 && r1.first[f1] <= r2.first[f2])
+				f2--;
+			ans += f2+1;
+			f1--;
+		}
+		return {aux,ans};
 	}
 }
 
+
 int main()
 {
-	
 	ios::sync_with_stdio(false);
 	cin.tie(NULL);
 	tint n;
-	//~ vector<tint> w = {2,1};
-	//~ cout << inversiones(w,0,w.size()) << endl;
+	//~ cout << inversiones({2,2,1}).second << endl;
 	while (cin >> n)
 	{
 		vector<Card> v (n,Card(0,0));
@@ -80,20 +92,30 @@ int main()
 			v[i] = Card(r,b);
 		}
 		tint ans = INFINITO;
+		
 		sort(v.begin(),v.end(),porRojo);
 		vector<tint> azul (n);
 		forn(i,n)
 			azul[i] = v[i].blue;
-			
-		ans = min(ans,inversiones(azul,0,n));
+		ans = min(ans,inversiones(azul).second);
+		
 		sort(v.begin(),v.end(),porAzul);
 		vector<tint> rojo (n);
 		forn(i,n)
 			rojo[i] = v[i].red;
-		
-		ans = min(ans,inversiones(rojo,0,n));
-		
+		ans = min(ans,inversiones(rojo).second);
 		cout << ans << "\n";
+		
 	}
+	return 0;
 }
- 
+
+
+
+
+
+
+
+
+
+
