@@ -1,77 +1,135 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
+#include <string>
+#include <queue>
+#include <deque>
+#include <set>
 #include <map>
+#include <cmath>
 #include <algorithm>
+#include <cassert>
+#include <tuple>
+#include <functional>
+#include <unordered_set>
+#include <unordered_map>
+#include <sstream>
+#include <stdio.h>
+#include <valarray>
+#include <random>
 #include <bitset>
+#include <iomanip>
+
+
+typedef long long tint;
+typedef unsigned long long utint;
+typedef long double ldouble; 
+
+
+#define forn(i,n) for(tint i=0;i<(tint)(n); i++)
+#define forsn(i,s,n) for(tint i=(s);i<(tint)(n); i++)
+#define esta(x,v) (find((v).begin(),(v).end(),(x)) !=  (v).end())
+#define index(x,v) (find((v).begin(),(v).end(),(x)) - (v).begin())
+#define debug(x) cout << #x << " = "  << x << endl
+
+
 
 using namespace std;
 
-typedef int tint;
-
-#define forsn(i,s,n) for (tint i = (tint)s; i < (tint)(n); i++)
-#define forn(i,n) for (tint i = 0; i < (tint)(n); i++)
 
 
-const tint zero = 1 << 14;
+void imprimirVector (vector<tint> v)
+{
+	if (!v.empty())
+	{ 
+		tint p = tint(v.size());
+		cout << "[";
+		forn(i,p-1)
+			cout << v[i] << ",";
+		cout << v[p-1] << "]" << endl;
+	}
+	else
+		cout << "[]" << endl;
+}
+
+tint toNumber (string s)
+{
+	tint Number;
+	if ( ! (istringstream(s) >> Number) )
+		Number = 0; // el string vacio lo manda al cero
+	return Number;
+}
+
+string toString (tint number)
+{    
+    ostringstream ostr;
+    ostr << number;
+    return  ostr.str();
+}
+
+
 const tint maxF = 1 << 15;
+const tint zero = 1 << 14;
+
+vector<vector<bitset<maxF> > > sumas (2, vector<bitset<maxF> > (2));
+
 
 int main()
 {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  tint n,f;
-  while (cin >> n >> f && n != 0 && f != 0)
-  {
-    string ans (n,'.');
-    vector<tint> a (n);
-    forn(i,n)
-      cin >> a[i];
-    
-    bitset<maxF> vacio;
-    forn(i,n)
-    {
-      bitset<maxF> positivo1;
-      bitset<maxF> negativo1;
-      bitset<maxF> positivo2;
-      bitset<maxF> negativo2;
-      positivo1[zero+a[i]] = 1;
-      negativo1[zero-a[i]] = 1;
-      forn(j,n)
-      {
-        if (i != j)
-        {
-          forn(k,maxF)
-          {
-            if (positivo1[k] && 0 <= k + a[j] && k + a[j] < maxF)
-              positivo2[k+a[j]] = 1;
-            if (positivo1[k] && 0 <= k - a[j] && k - a[j] < maxF)
-              positivo2[k-a[j]] = 1;
-            if (negativo1[k] && 0 <= k + a[j] && k + a[j] < maxF)
-              negativo2[k+a[j]] = 1;
-            if (negativo1[k] && 0 <= k - a[j] && k - a[j] < maxF)
-              negativo2[k-a[j]] = 1;
-          }
-        }
-        cout << positivo2.count() << " " << negativo2.count() << endl;
-        positivo1 &= vacio;
-        positivo1 |= positivo2;
-        negativo1 &= vacio;
-        negativo1 |= negativo2;
-        positivo2 &= vacio;
-        negativo2 &= vacio;
-      }
-      if (positivo1[zero+f] && negativo1[zero+f])
-        ans[i] = '?';
-      else if (positivo1[zero+f] && negativo1[zero+f])
-        ans[i] = '+';
-      else if (positivo1[zero+f] && negativo1[zero+f])
-        ans[i] = '-';
-      else
-      {
-        ans = '*';
-        break;
-      }
-    }
-    cout << ans << "\n";
-  }
+	#ifdef ACMTUYO
+		assert(freopen("entrada.in", "r", stdin));
+	#endif
+	ios_base::sync_with_stdio(0);
+	cin.tie(NULL);
+	tint n,f;
+	while (cin >> n >> f && n != 0)
+	{
+		string ans (n,'.');
+		vector<tint> a (n);
+		forn(i,n)
+			cin >> a[i];
+		forn(i,n)
+		{
+			
+			forn(r,2)
+			forn(w,2)
+				sumas[r][w].reset();	
+			sumas[0][0].set(zero+a[i]);
+			sumas[1][0].set(zero-a[i]);
+			tint actual = 0;
+			
+			forn(j,n)
+				if (i != j)
+				{
+					forn(r,2)
+					{
+						forn(k,maxF)
+							if (sumas[r][actual%2][k])
+								for(tint p = -1; p <= 1; p += 2)
+									if (0 <= k+p*a[j] && k+p*a[j] < maxF)
+										sumas[r][(actual+1)%2].set(k+p*a[j]);
+					}
+					forn(r,2)
+						sumas[r][actual%2].reset();
+					actual++;
+				}
+			
+			if (sumas[0][actual%2][zero+f] && sumas[1][actual%2][zero+f])
+				ans[i] = '?';
+			else if (sumas[0][actual%2][zero+f] && !sumas[1][actual%2][zero+f])
+				ans[i] = '+';
+			else if (!sumas[0][actual%2][zero+f] && sumas[1][actual%2][zero+f])
+				ans[i] = '-';
+			else
+			{
+				ans = "*";
+				break;
+			}
+		}
+		cout << ans << "\n";
+	}
+	return 0;
 }
+
+
+
