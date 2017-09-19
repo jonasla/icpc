@@ -80,6 +80,18 @@
 
 %%% El texto propiamente dicho
 \nbtitle{BGL-UBA - Reference}
+
+\section*{Cosas a tener en cuenta}
+
+\subsection*{Flags de Compilación}
+
+\begin{code}
+g++ -std=c++11 -DACMTUYO -O2 -Wshadow -Wextra -D_GLIBCXX_DEBUG -Wall -c "%f"
+g++ -std=c++11 -DACMTUYO -O2 -Wshadow -Wall -Wextra -D_GLIBCXX_DEBUG -o"%e" "%f"
+time "./%e"
+\end{code}
+
+
 \section{Estructuras}
 
 \subsection{Fenwick Tree}
@@ -246,6 +258,12 @@ vector<tint> &distance, vector<vector<tint> > &parent)
 \end{code}
 
 \subsection{Kosaraju (Jonaz)}
+
+\begin{code}
+
+\end{code}
+
+\subsection{2-SAT (Jonaz)}
 
 \begin{code}
 
@@ -434,6 +452,12 @@ tint dinic ()
 
 \end{code}
 
+\subsection{Flujo de Costo Mínimo}
+
+\begin{code}
+
+\end{code}
+
 \pagebreak
 
 \section{Arboles}
@@ -481,6 +505,12 @@ void unite (tint a, tint b)
 	tamanho[a] += tamanho[b];
 	representante[b] = a;	
 }
+\end{code}
+
+\subsection{LCA - Segment Tree (Jonaz)}
+
+\begin{code}
+
 \end{code}
 
 \subsection{Binary Lifting (saltitos potencia de 2)}
@@ -700,9 +730,21 @@ int main()
 }
 \end{code}
 
+\subsection{Suffix Array}
+
+\begin{code}
+
+\end{code}
+
+\subsection{Longest Common Prefix}
+
+\begin{code}
+
+\end{code}
+
 \pagebreak
 
-\section{Teoria de Numeros}
+\section{Matematica}
 
 \subsection{PotLog}
 
@@ -763,6 +805,18 @@ int main()
 \end{code}
 
 \subsection{Euclides Extendido (Guty)}
+
+\begin{code}
+
+\end{code}
+
+\subsection{Teorema Chino del Resto (Guty)}
+
+\begin{code}
+
+\end{code}
+
+\subsection{Eliminacion Gaussiana}
 
 \begin{code}
 
@@ -985,6 +1039,12 @@ int main()
 
 \end{code}
 
+\subsection{Regla de Simpson (Integracion Numerica) (Guty)}
+
+\begin{code}
+
+\end{code}
+
 \pagebreak
 
 \section{Geometria}
@@ -1153,13 +1213,29 @@ ldouble dEntreSeg(Segmento s1, Segmento s2)
 
 \end{code}
 
-\subsection{Sweep Line Facil (Interseccion de Segmentos o Closest Pair )}
+\subsection{Sweep Line Facil (Interseccion de Segmentos/Closest Pair)}
 
 \begin{code}
 
 \end{code}
 
 \subsection{Sweep Line Dificil (Union de Rectángulos)}
+
+\begin{code}
+
+\end{code}
+
+\subsection{Radial Sweep}
+
+\begin{code}
+
+\end{code}
+
+\subsection{Minimum Bounding Circle}
+
+\begin{code}
+
+\end{code}
 
 \pagebreak
 
@@ -1318,6 +1394,8 @@ ldouble miniTernarySearch (ldouble tL, ldouble tR) // En [tL, tR] esta el minimo
 }
 
 \end{code}
+
+
 
 
 
