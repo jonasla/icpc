@@ -1141,8 +1141,9 @@ ldouble dPuntoSeg (Punto p, Segmento s)
 
 ldouble dEntreSeg(Segmento s1, Segmento s2)
 {
-	return min(min(dPuntoSeg(s1.start,s2),dPuntoSeg(s1.end,s2)),
-			   min(dPuntoSeg(s2.start,s1),dPuntoSeg(s2.end,s1)));
+	ldouble a = min(dPuntoSeg(s1.start,s2),dPuntoSeg(s1.end,s2));
+	ldouble b = min(dPuntoSeg(s2.start,s1),dPuntoSeg(s2.end,s1));
+	return (interSeg(s1,s2,false).second == 0) * min(a,b);
 }
 \end{code}
 

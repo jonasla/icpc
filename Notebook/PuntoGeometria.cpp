@@ -184,8 +184,9 @@ ldouble dPuntoSeg (Punto p, Segmento s)
 
 ldouble dEntreSeg(Segmento s1, Segmento s2)
 {
-	return min(min(dPuntoSeg(s1.start,s2),dPuntoSeg(s1.end,s2)),
-			   min(dPuntoSeg(s2.start,s1),dPuntoSeg(s2.end,s1)));
+	ldouble a = min(dPuntoSeg(s1.start,s2),dPuntoSeg(s1.end,s2));
+	ldouble b = min(dPuntoSeg(s2.start,s1),dPuntoSeg(s2.end,s1));
+	return (interSeg(s1,s2,false).second == 0) * min(a,b);
 }
 
 ldouble areaTriangulo (Punto p1, Punto p2, Punto p3)
@@ -217,7 +218,7 @@ int main()
 	
 	ios_base::sync_with_stdio(0);
 	cin.tie(NULL);
-	cout << dPuntoSeg(Punto(2,0),Segmento(Punto(0,1), Punto(1,-1))) << endl;
+	cout << dPuntoSeg(Punto(2,0),Segmento(Punto(0,0), Punto(1,-1))) << endl;
 	pair<Punto,tint> inter = interSeg(Segmento(Punto(0,0),Punto(0,5)),Segmento(Punto(0,3),Punto(0,4)),1);
 	cout << inter.second << "\n";
 	cout << fixed << showpoint << setprecision(16) << inter.first.x << " " << inter.first.y << "\n";
