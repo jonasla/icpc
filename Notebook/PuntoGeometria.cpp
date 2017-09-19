@@ -67,6 +67,7 @@ string toString (tint number)
 }
 
 const ldouble epsilon = 1e-10;
+const ldouble pi = acos(-1);
 
 struct Punto
 {
@@ -130,20 +131,24 @@ bool operator == (Punto p1, Punto p2)
 
 struct Segmento
 {
-	Punto start,dir;
-	Segmento (Punto ss, Punto dd)
+	Punto start,end,dir;
+	Segmento (Punto ss, Punto ee)
 	{
 		start = ss;
-		dir = dd;
+		end = ee;
+		dir = ee-ss;
 	}
 };
 
-pair<Punto,tint> interseccion (Segmento s1, Segmento s2, bool otroExtremo ) // Si estan sobre la misma linea e intersecan, da el punto medio. Si no intersecan avisa
+pair<Punto,tint> interSeg (Segmento s1, Segmento s2, bool otroExtremo ) // Si estan sobre la misma linea e intersecan, da el punto medio. Si no intersecan avisa
 {
 	
 	if ((abs(s1.dir ^ s2.dir)) < epsilon) // son colineales
 	{
-		vector<pair<Punto,tint> > aux = {{s1.start-epsilon*s1.dir,1},{s1.start + (1+epsilon)*s1.dir,1},{s2.start-epsilon*s2.dir,2},{s2.start + (1+epsilon)*s2.dir,2}};
+		vector<pair<Punto,tint> > aux = {{s1.start - epsilon*s1.dir,1},
+										 {s1.end   + epsilon*s1.dir,1},
+										 {s2.start - epsilon*s2.dir,2},
+										 {s2.end   + epsilon*s2.dir,2}};
 		sort(aux.begin(),aux.end());
 		if (aux[0].second != aux[1].second)
 			return make_pair(aux[1+otroExtremo].first,2);
@@ -158,6 +163,29 @@ pair<Punto,tint> interseccion (Segmento s1, Segmento s2, bool otroExtremo ) // S
 		else
 			return make_pair(Punto(),0);
 	}
+}
+
+
+ldouble angEntre (Punto p1, Punto p2, Punto p3) // P1^P2P3
+{
+	ldouble a = norma(p2-p3);
+	ldouble b = norma(p1-p3);
+	ldouble c = norma(p2-p1);
+	return acos((a*a+c*c-b*b)/(2*a*c));
+}
+
+ldouble dPuntoSeg (Punto p, Segmento s)
+{
+	if (angEntre(p,s.start,s.end) > pi/2 or angEntre(p,s.end,s.start) > pi/2)
+		return min(norma(p-s.start),norma(p-(s.end)));
+	else
+		return abs( ((s.start-p)^(s.end-p)) / (norma(s.dir)) );
+}
+
+ldouble dEntreSeg(Segmento s1, Segmento s2)
+{
+	return min(min(dPuntoSeg(s1.start,s2),dPuntoSeg(s1.end,s2)),
+			   min(dPuntoSeg(s2.start,s1),dPuntoSeg(s2.end,s1)));
 }
 
 ldouble areaTriangulo (Punto p1, Punto p2, Punto p3)
@@ -189,7 +217,8 @@ int main()
 	
 	ios_base::sync_with_stdio(0);
 	cin.tie(NULL);
-	pair<Punto,tint> inter = interseccion(Segmento(Punto(0,0),Punto(0,5)),Segmento(Punto(0,3),Punto(0,4)),1);
+	cout << dPuntoSeg(Punto(2,0),Segmento(Punto(0,1), Punto(1,-1))) << endl;
+	pair<Punto,tint> inter = interSeg(Segmento(Punto(0,0),Punto(0,5)),Segmento(Punto(0,3),Punto(0,4)),1);
 	cout << inter.second << "\n";
 	cout << fixed << showpoint << setprecision(16) << inter.first.x << " " << inter.first.y << "\n";
 	return 0;
