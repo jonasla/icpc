@@ -17,6 +17,7 @@
 \usepackage{amssymb}
 \usepackage{svnkw}
 \usepackage{rotating}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 
 %\svnidlong{$HeadURL: http://tpsh.exp.dc.uba.ar/svn/adeymo-acm/notebook/notebook.tex $}{$LastChangedDate: 2011-05-22 22:49:20 -0300 (dom, 22 may 2011) $}{$LastChangedRevision: 1 $}{$LastChangedBy: jonaz $}
 \def\revision{\svnrev}
@@ -49,6 +50,9 @@
 \renewcommand{\footrulewidth}{0.4pt}
 \renewcommand{\footruleskip}{0.2in}
 
+\definecolor{grisgris}{gray}{0.30}
+\definecolor{grisclaro}{gray}{0.60}
+
 %%% Configuración de Listings
 \lstloadlanguages{C++}
 \lstnewenvironment{code}
@@ -56,14 +60,14 @@
 	 \csname lst@SetFirstLabel\endcsname}
 	{\csname lst@SaveFirstLabel\endcsname}
 \lstset{% general command to set parameter(s)
-	language=C++, basicstyle=\small\ttfamily, keywordstyle=\slshape,
+	language=C++, basicstyle=\small\ttfamily, keywordstyle=\slshape\color{grisgris},
 	emph=[1]{tipo,usa}, emphstyle={[1]\sffamily\bfseries},
 	morekeywords={tint,forn,forsn},
 	basewidth={0.47em,0.40em},
 	columns=fixed, fontadjust, resetmargins, xrightmargin=5pt, xleftmargin=15pt,
 	flexiblecolumns=false, tabsize=2, breaklines,	breakatwhitespace=false, extendedchars=true,
 	numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=9pt,
-	frame=l, framesep=3pt,
+	frame=l, framesep=3pt, commentstyle=\color{grisclaro}, stringstyle=\color{grisgris}
 }
 
 %%% Macros
