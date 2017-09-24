@@ -1,0 +1,188 @@
+\section{Arboles}
+
+\subsection{Union-Find (Guty)}
+\begin{code}
+const tint maxN = 131072;
+vector<tint> caminito;
+tint representante[maxN];
+tint tamanho[maxN];
+
+void inicializar (tint n)
+{
+	forn(i,n)
+	{
+		representante[i] = i;
+		tamanho[i] = 1;
+	}
+}
+
+tint find (tint x)
+{
+	caminito = {};
+	while (x != representante[x])
+	{
+		caminito.push_back(x);
+		x = representante[x];	
+	}
+	for (auto z : caminito)
+		representante[z] = x;
+	return x;
+}
+
+bool same (tint a, tint b)
+{
+	return (find(a) == find(b));
+}
+
+void unite (tint a, tint b)
+{
+	a = find(a);
+	b = find(b);
+	if (tamanho[a] < tamanho[b])
+		swap(a,b);
+	tamanho[a] += tamanho[b];
+	representante[b] = a;	
+}
+\end{code}
+
+\subsection{Union-Find (Jonaz) Union by Rank \& Path ompression}
+\begin{code}
+class UF {
+private: vector<int> p, rank; int comps;
+public: 
+  UF(int N) {
+    rank.assign(N, 0); comps = N;
+    p.assign(N, 0); forn(i,N) p[i] = i;
+  }
+  int findSet(int i) { return (p[i] == i) ? i : (p[i] = findSet(p[i])); }
+  bool sameSet(int i, int j) { return findSet(i) == findSet(j); }
+  void unionSet(int i, int j) {
+    if (!sameSet(i,j)) {
+      int x = findSet(i), y = findSet(j);
+      if (rank[x] > rank[y]) p[y] = x;
+      else { 
+        p[x] = y; 
+        if (rank[x] == rank[y]) rank[y]++;
+      }
+      comps--;
+    }
+  }
+  int components() { return comps; }
+};
+\end{code}
+
+\subsection{Kruskal (usa UF de Jonaz)}
+\begin{code}
+struct Arista {
+  tint peso, start, end;
+  Arista(tint s, tint e, tint p) : peso(p), start(s), end(e) {}
+  bool operator<(const Arista& o) const {
+    return make_tuple(peso, start, end) < make_tuple(o.peso, o.start, o.end);
+}};
+// Devuelve el peso del AGM, y en `agm' deja las aristas del mismo. 
+tint kruskal(vector<Arista> &ars, tint size, vector<Arista> &agm) {
+  sort(ars.begin(), ars.end());
+  tint min_peso = 0;
+  UF uf(size);
+  for(auto &a : ars) {
+    if (!uf.sameSet(a.start, a.end)) {
+      min_peso += a.peso;
+      uf.unionSet(a.start, a.end);
+      agm.push_back(a);
+      if ((tint)agm.size() == size-1) break; // Esto es que ya tiene V-1 aristas
+  }}
+  return min_peso;
+}
+\end{code}
+
+\subsection{LCA - Segment Tree (Jonaz)}
+\begin{code}
+\end{code}
+
+\subsection{Binary Lifting (saltitos potencia de 2)}
+\begin{code}
+const tint maxN = 32768; // cantidad de nodos
+const tint maxK = 16;	 // lg(cantidadDeNodos)
+const tint NEUTRO = 1e8; // neutro de la operacion (ejemplo: minimo)
+
+tint d[maxN]; // profundidad
+pair<tint,tint> p[maxN][maxK]; 
+// {ancestro a distancia 2^k, Lo que queremos entre los 2^k ancestros}
+
+void dfs(tint actual, vector<vector<pair<tint,tint> > > &ladj, tint padre)
+{
+	d[actual] = d[padre]+1;
+	for (auto x : ladj[actual])
+		if (x.first != padre)
+		{
+			p[x.first][0] = {actual,x.second};
+			dfs(x.first,ladj,actual);
+		}
+}
+
+tint subir(tint a, tint c, tint &ans, bool tomaMinimo)
+{
+	tint k = 0;
+	while (c > 0)
+	{
+		if (c % 2)
+		{
+			if (tomaMinimo)
+				ans = min(ans,p[a][k].second);
+			a = p[a][k].first;
+		}
+		k++;
+		c /= 2;
+	}
+	return a;
+}
+
+tint answer (tint a, tint b)
+{
+	// IGUALAMOS LAS ALTURAS
+	if (d[a] < d[b])
+		swap(a,b);
+	tint w = d[a] - d[b], ans = NEUTRO;
+	a = subir(a,w,ans,true);
+	
+	// HACEMOS LA BINARY PARA BUSCAR EL LCA
+	tint cInf = 0, cSup = maxN; 
+	while (cSup - cInf > 1)
+	{
+		tint ra = a, rb = b;
+		tint c = (cSup+cInf)/2;
+		ra = subir(ra,c,ans,false);
+		rb = subir(rb,c,ans,false);
+		if (ra == rb)
+			cSup = c;
+		else
+			cInf = c;
+	}
+	// SUBIMOS LO QUE HAGA FALTA PARA LLEGAR AL LCA
+	cSup *= (a != b);
+	a = subir(a,cSup,ans,true);
+	b = subir(b,cSup,ans,true);
+	return ans;
+}
+
+// INICIALIZACION
+int main()
+{
+	forn(i,maxN)
+	forn(k,maxK)
+		p[i][k] = {-1,NEUTRO};
+	// HACEMOS EL PRIMER PASO EN FUNCION DEL GRAFO
+	vector<vector<pair<tint,tint> > > ladj (maxN); // listaDeAdyacencia del arbol
+	d[0] = -1;
+	dfs(0,ladj,0);
+	// LLENADO DE LA TABLA
+	forsn(k,1,maxK)	
+	forn(i,maxN)
+	{
+		tint ancestro = p[i][k-1].first;
+		if (ancestro >= 0)
+			p[i][k] = {p[ancestro][k-1].first, 
+					       min(p[i][k-1].second,p[ancestro][k-1].second) };
+	}
+}
+\end{code}

@@ -1,0 +1,145 @@
+\section{Varios}
+
+\subsection{Longest Incresing Subsequence (LIS)}
+\begin{code}
+tint LIS(vector<tint> &v) {
+  if (v.empty()) return 0;
+  
+  tint l = 0;             // ultimo lugar de tails hasta ahora
+  vi tails(v.size(), 0);  // candidatos de final de sub secuencias
+  tails[l] = v[0];
+  
+  forsn(i,1,v.size()) {
+    // con upper_bound es no-decreciente
+    tint me = lower_bound(tails.begin(),tails.begin()+l+1, v[i])-tails.begin();
+    tails[me] = v[i];
+    if (me > l) l = me;
+  }
+  return l + 1;
+}
+\end{code}
+
+\subsection{Maximum Subarray Sum}
+\begin{code}
+tint maximumSum (vector<tint> &a) // a no vacio
+{
+	tint maxTotal = a[0], maxAca = a[0], n = a.size();
+	forsn(i,1,n)
+	{
+		maxAca = max(a[i],maxAca + a[i]);
+		maxTotal = max(maxTotal,maxAca);
+	}
+	return maxTotal;
+}
+\end{code}
+
+\subsection{Rotar 90° una matriz (sentido horario)}
+\begin{code}
+void rotar (vector<string> &origi) 
+{
+	tint n = origi.size();
+	string aux (n,'x');
+	vector<string> rotado (n,aux);
+	forn(i,n)
+	forn(j,n)
+		rotado[j][n-i-1] = origi[i][j];
+	origi = rotado;
+}
+\end{code}
+
+\subsection{Random + Imprimir Doubles}
+\begin{code}
+#include <iostream>
+#include <random>
+#include <iomanip>
+
+using namespace std;
+
+random_device rd;
+mt19937 gen(rd());
+uniform_int_distribution<int> dis1(1, 10000);
+uniform_real_distribution<long double> dis2(1, 10000);
+
+int main()
+{
+	cout <<  dis1(gen) << "\n";
+	cout <<  fixed << showpoint << setprecision(16) << dis2(gen) << "\n";
+	return 0;
+}
+\end{code}
+
+\subsection{Slding Window RMQ}
+\begin{code}
+void agrandarVentana (tint &r, deque<pair<tint,tint> > &rmq, vector<tint> &v)
+{
+	while (!rmq.empty() && rmq.back().first >= v[r])
+		rmq.pop_back();
+	rmq.push_back({v[r],r});
+	r++;
+	
+}
+
+void achicarVentana (tint &l, deque<pair<tint,tint> > &rmq)
+{
+	if (l == rmq.front().second)
+		rmq.pop_front();
+	l++;
+}
+
+pair<tint,tint> minimoVentana (deque<pair<tint,tint> > &rmq)
+{
+	return rmq.front();
+}
+// USO: En todo momento tenemos el minimo entre [l,r)
+int main()
+{
+	deque<pair<tint,tint> > rmq; // {numero,indice}
+	tint l = 0, r = 0;//  l   . r
+	vector<tint> v = {1,2,3,4,3,2,2,3,4};
+	agrandarVentana(r,rmq,v);
+	agrandarVentana(r,rmq,v);
+	agrandarVentana(r,rmq,v);
+	agrandarVentana(r,rmq,v);
+	agrandarVentana(r,rmq,v);
+	achicarVentana(l,rmq);
+	achicarVentana(l,rmq);
+	cout << minimoVentana(rmq).first << endl;	// {3,4}
+	return 0;
+}
+\end{code}
+
+\subsection{Ternary Search}
+\begin{code}
+// Ternary en ENTEROS
+tint miniTernarySearch (tint a, tint b) // En [a,b] esta el minimo
+{
+	tint l = a, r = b;
+	while (abs(r - l) > 5)
+	{
+		tint al = (2*l + r)/3;
+		tint br = (l + 2*r)/3;
+		if (f(al) > f(br)) // cambiar a "<" para maximo
+			l = al;
+		else
+			r = br;			
+	}
+	tint ans = 1e16;
+	forsn(k,l,r+1)
+		ans = min(ans,f(k));  // cambiar por "max" para maximo
+	return ans;
+}
+//Ternary en FLOATING POINT
+ldouble miniTernarySearch (ldouble tL, ldouble tR) // En [tL, tR] esta el minimo
+{
+	while (abs(tR - tL) > epsilon)
+	{
+		ldouble tLThird = (2.0*tL + tR)/3.0;
+		ldouble tRThird = (tL + 2.0*tR)/3.0;
+		if (f(tLeftThird) > f(tRightThird)) // cambiar a "<" para maximo
+			tLeft = tLeftThird;
+		else
+			tRight = tRightThird;			
+	}
+	return f((tLeft+tRight)/2.0);
+}
+\end{code}

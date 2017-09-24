@@ -1,0 +1,286 @@
+\section{Matematica}
+
+\subsection{PotLog}
+\begin{code}
+const tint nmod = 1000000007; // o el primo que deseamos
+tint potLogMod (tint x, tint y) // Calcula: (x^y) mod nmod
+{
+	tint ans = 1;
+	while (y > 0)
+	{
+		if (y % 2)
+			ans = (x * ans) % nmod;
+		x = (x * x) % nmod;
+		y /= 2;
+	}
+	return ans;
+}
+tint invMod(tint a) // nmod PRIMO. Devuelve b tal que: (a*b) = 1 (mod nmod) 
+{
+	return potLogMod(a,nmod-2);
+}
+\end{code}
+
+\subsection{Criba}
+\begin{code}
+const tint maxN = 1000500;
+tint p[maxN + 1] = {1, 1};
+tint phi[maxN]; 
+
+map<tint,tint> factorizar (tint n)
+{
+	map<tint,tint> f;
+	while (n > 1) 
+	{ 
+		f[p[n]]++;
+		n /= p[n]; 
+	}
+	return f;
+}
+// USO:
+int main()
+{
+	// CRIBA COMUN : (p[n] = mayor primo que divide a n (n >= 2) )
+	for (tint i = 1; i <= maxN; ++i)
+		if (p[i] == 1)
+			for (tint j = i; j <= maxN; j += i)
+				//if (p[j] == 1 or i == 1) // Con esta linea da el menor primo
+				p[j] = i;
+	// CALCULA PHI(N): #Coprimos con N
+	for (tint i = 0; i < maxN; i++) 
+		phi[i] = i;	
+	for (tint i = 1; i < maxN; i++)
+	for (tint j = 2 * i; j < maxN; j += i)
+		phi[j] -= phi[i];
+	return 0;
+}
+\end{code}
+
+\subsection{Euclides Extendido (Guty)}
+\begin{code}
+\end{code}
+
+\subsection{Teorema Chino del Resto (Guty)}
+\begin{code}
+\end{code}
+
+\subsection{Eliminacion Gaussiana}
+\begin{code}
+\end{code}
+
+\subsection{Rabin-Miller}
+\begin{code}
+// USA: "PotLog", pero pasandole el modulo como parametro
+#include <random>
+const tint semilla = 38532164;
+mt19937 gen(semilla);
+
+tint mult(tint a, tint b, tint m)
+{
+	int largestBit = 0;
+	while( (b >> largestBit) != 0)
+		largestBit++;
+	tint ans = 0;
+	for(tint currentBit = largestBit - 1; currentBit >= 0; currentBit--)
+	{
+		ans = (ans + ans);
+		if (ans >= m)
+			ans -= m;
+
+		if ( (b >> currentBit) & 1)
+		{ 
+			ans += a;
+			if (ans >= m)
+				ans -= m; 
+		}
+	}
+	return ans;
+}
+
+bool esPrimoRM (tint n)
+{
+	if (n <= 1)
+		return false;
+	else if (n <= 3)
+		return true;
+	else if (n % 2 == 0)
+		return false;
+	else
+	{
+		uniform_int_distribution<tint> dis(2, n-2);
+		tint kOrig = 0, m = n-1;
+		while (m % 2 == 0)
+		{
+			kOrig++;
+			m /= 2;
+		}
+		bool esPrimo = true;
+		vector<tint> testigos = {2,3,5,7,11,13,17,19,23,29,31,37};
+		for (auto a : testigos)
+		{
+			if (a < n)
+			{
+				tint b = potLogMod(a,m,n), k = kOrig;
+				if (b == 1 or b == n-1)
+					continue;
+				else
+				{
+					forn(j,k)
+					{
+						b = mult(b,b,n);
+						if (b == n-1)
+							break;
+						else if (b == 1)
+						{
+							esPrimo = false;
+							break;
+						}
+					}
+					if (b != n-1)
+					{
+						esPrimo = false;
+						break;
+					}
+				}
+			}
+		}
+		return esPrimo;
+	}
+}
+\end{code}
+
+\subsection{Pollard-Rho}
+\begin{code}
+// USA: Rabin-Miller
+tint gcd (tint a, tint b)
+{
+	if (a == 0)
+		return b;
+	return gcd (b % a, a);
+}
+void factorizar (tint n, map<tint,tint> &f)
+{
+	while (n > 1)
+	{
+		if (esPrimoRM(n))
+		{
+			f[n]++;
+			n /= n;
+		}
+		else
+		{
+			uniform_int_distribution<tint> dis(1, n-1);
+			tint a = dis(gen), b = dis(gen), x = 2, y = 2, d;
+			do
+			{
+				x = (mult(x,x,n) + mult(a,x,n) + b) % n;
+				y = (mult(y,y,n) + mult(a,y,n) + b) % n;
+				y = (mult(y,y,n) + mult(a,y,n) + b) % n;
+				d = gcd(abs(x-y),n);
+			}
+			while (d == 1);
+			if (d != n)
+			{
+				factorizar(d,f);
+				n /= d;
+			}
+				
+		}
+	}
+}
+
+\end{code}
+
+\subsection{FFT}
+\begin{code}
+// USA : "PotLog" e "InvMod" con nmod = mod 
+const tint mod = (1 << 21)*11 + 1 ; // es re primo
+const tint root = 38;
+const tint root_1 = 21247462;
+const tint root_pw = 1 << 21 ; // largo del arreglo
+/*
+ * const tint mod = 7340033;
+ * const tint root = 5 ;
+ * const tint root_1 = 4404020 ;
+ * const tint root_pw = 1 << 20 ; 
+ */
+ 
+tint modulo (tint n)
+{
+	return ((n % mod) + mod) % mod;
+}
+void fft (vector <tint> &a, bool invert )
+{
+	tint n = a. size();
+	for (tint i = 1 , j = 0 ; i < n ; ++ i )
+	{
+		tint bit = n >> 1 ;
+		while(j >= bit)
+		{
+			j -= bit ;
+			bit >>= 1;
+		}
+		j += bit ;
+		if ( i < j )
+			swap (a[i],a[j]);
+	}
+	for (tint len = 2 ; len <= n ; len <<= 1) 
+	{
+		tint wlen = root;
+		if (invert)
+			wlen = root_1;
+		for (tint i = len ; i < root_pw ; i <<= 1)
+			wlen = modulo(wlen * wlen);
+		for (tint i = 0 ; i < n ; i += len ) 
+		{
+			tint w = 1 ;
+			forn(j,len/2)
+			{
+				tint u = a[i+j], v = modulo(a[i+j+len/2] * w) ;
+				a[i+j] = modulo(u+v);
+				a[i+j + len/2] = modulo(u - v);
+				w = modulo(w * wlen) ;
+			}
+		}
+	}
+	
+	if (invert) 
+	{
+		tint nrev = invMod(n);
+		forn(i,n)
+			a[i] = modulo(a[i] * nrev) ;
+	}
+}
+
+void multiply (const vector<tint> &a, const vector<tint> &b, vector<tint> &res) 
+{
+	vector<tint> fa(a.begin(), a.end() ), fb(b.begin(), b.end() );
+	tint n = 1 ;
+	while (n < max(tint(a.size()), tint(b.size())))
+		n <<= 1;
+	n <<= 1 ;
+	fa.resize(n), fb.resize(n);
+	fft (fa, false) , fft(fb, false);
+	forn(i,n)
+		fa[i] *= fb[i];
+	fft(fa, true);
+	res = fa;
+} 
+// USO:
+int main()
+{
+	vector<tint> a = {1,0,0,1};
+	vector<tint> b = {1,0,0,1};
+	vector<tint> res;
+	multiply(a,b,res);
+	for (auto x : res)
+		cout << x << " " ; // 1 0 0 2 0 0 1 0 
+	cout << endl;
+	return 0;
+}
+
+\end{code}
+
+\subsection{Regla de Simpson (Integracion Numerica) (Guty)}
+\begin{code}
+\end{code}
