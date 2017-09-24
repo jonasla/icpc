@@ -19,9 +19,6 @@
 \usepackage{rotating}
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 
-%\svnidlong{$HeadURL: http://tpsh.exp.dc.uba.ar/svn/adeymo-acm/notebook/notebook.tex $}{$LastChangedDate: 2011-05-22 22:49:20 -0300 (dom, 22 may 2011) $}{$LastChangedRevision: 1 $}{$LastChangedBy: jonaz $}
-\def\revision{\svnrev}
-
 %%% Márgenes
 \setlength{\columnsep}{0.25in}    % default=10pt
 \setlength{\columnseprule}{0.5pt}    % default=0pt (no line)
@@ -41,8 +38,7 @@
 
 %%% Encabezado y pie de página
 \pagestyle{fancy}
-\fancyhead[LO]{\leftmark\ -\ \rightmark}
-%\fancyhead[C]{\textbf{BGL-UBA}}
+\fancyhead[LO]{\leftmark}
 \fancyhead[RO]{\textbf{BGL-UBA} - P\'agina \thepage\ de \pageref{LastPage}\ \begin{rotate}{270}\hspace{.8em}\underline{\textbf{Universidad de Buenos Aires - FCEN -- BGL}\hspace{4.1in}\ }\end{rotate}}
 \fancyfoot{}
 \fancyfoot[RO]{\begin{rotate}{270}\hspace{-10em}\textbf{Page \thepage\ of \pageref{LastPage}}\end{rotate}}
@@ -50,7 +46,7 @@
 \renewcommand{\footrulewidth}{0.4pt}
 \renewcommand{\footruleskip}{0.2in}
 
-\definecolor{grisgris}{gray}{0.30}
+\definecolor{grisgris}{gray}{0.25}
 \definecolor{grisclaro}{gray}{0.60}
 
 %%% Configuración de Listings
@@ -59,7 +55,7 @@
 	{%\lstset{	numbers=none, frame=lines, basicstyle=\small\ttfamily, }%
 	 \csname lst@SetFirstLabel\endcsname}
 	{\csname lst@SaveFirstLabel\endcsname}
-\lstset{% general command to set parameter(s)
+\lstset{
 	language=C++, basicstyle=\small\ttfamily, keywordstyle=\slshape\color{grisgris},
 	emph=[1]{tipo,usa}, emphstyle={[1]\sffamily\bfseries},
 	morekeywords={tint,forn,forsn},
@@ -87,7 +83,7 @@
 
 \section*{Cosas a tener en cuenta}
 
-\subsection*{Flags de Compilación}
+\subsection*{Flags de Compilaci\'on}
 
 \begin{code}
 g++ -std=c++11 -DACMTUYO -O2 -Wshadow -Wextra -D_GLIBCXX_DEBUG -Wall -c "%f"
@@ -122,10 +118,47 @@ tint sum (tint k, vector<tint> &fenwick) // Devuelve la suma en el rango [1..k]
 }
 \end{code}
 
-\subsection{Trie (Jonaz)}
+\subsection{Trie}
 
 \begin{code}
+const int MAXN = 60000;
 
+struct TrieNode {
+  map<char, int> sig; 
+  bool final = false;
+  void reset() { sig.clear(); final = false; }
+};
+
+TrieNode trie[MAXN];
+int trie_n = 1;
+
+void resetTrie() {
+  trie_n = 1;
+  trie[0].reset();
+}
+
+void insertar(string st) {
+  int pos = 0;
+  for(int i=0; i<(int)st.size(); i++) {
+    if (trie[pos].sig.find(st[i]) == trie[pos].sig.end()) {
+      trie[pos].sig[st[i]] = trie_n;
+      trie[trie_n].reset();
+      trie_n++;
+    }
+    pos = trie[pos].sig[st[i]];
+  }
+  trie[pos].final = true;
+}
+
+bool buscar(string st) {
+  int pos = 0;
+  for(int i=0; i<(int)st.size(); i++) {
+    if (trie[pos].sig.find(st[i]) == trie[pos].sig.end())
+      return false;
+    pos = trie[pos].sig[st[i]];
+  }
+  return (trie[pos].final == true);
+}
 \end{code}
 
 \subsection{Segment Tree}
@@ -508,6 +541,56 @@ void unite (tint a, tint b)
 		swap(a,b);
 	tamanho[a] += tamanho[b];
 	representante[b] = a;	
+}
+\end{code}
+
+\subsection{Union-Find (Jonaz) Union by Rank \& Path ompression}
+\begin{code}
+class UF {
+private: vector<int> p, rank; int comps;
+public: 
+  UF(int N) {
+    rank.assign(N, 0); comps = N;
+    p.assign(N, 0); forn(i,N) p[i] = i;
+  }
+  int findSet(int i) { return (p[i] == i) ? i : (p[i] = findSet(p[i])); }
+  bool sameSet(int i, int j) { return findSet(i) == findSet(j); }
+  void unionSet(int i, int j) {
+    if (!sameSet(i,j)) {
+      int x = findSet(i), y = findSet(j);
+      if (rank[x] > rank[y]) p[y] = x;
+      else { 
+        p[x] = y; 
+        if (rank[x] == rank[y]) rank[y]++;
+      }
+      comps--;
+    }
+  }
+  int components() { return comps; }
+};
+\end{code}
+
+\subsection{Kruskal (usa UF de Jonaz)}
+\begin{code}
+struct Arista {
+  tint peso, start, end;
+  Arista(tint s, tint e, tint p) : peso(p), start(s), end(e) {}
+  bool operator<(const Arista& o) const {
+    return make_tuple(peso, start, end) < make_tuple(o.peso, o.start, o.end);
+}};
+// Devuelve el peso del AGM, y en `agm' deja las aristas del mismo. 
+tint kruskal(vector<Arista> &ars, tint size, vector<Arista> &agm) {
+  sort(ars.begin(), ars.end());
+  tint min_peso = 0;
+  UF uf(size);
+  for(auto &a : ars) {
+    if (!uf.sameSet(a.start, a.end)) {
+      min_peso += a.peso;
+      uf.unionSet(a.start, a.end);
+      agm.push_back(a);
+      if ((tint)agm.size() == size-1) break; // Esto es que ya tiene V-1 aristas
+  }}
+  return min_peso;
 }
 \end{code}
 
