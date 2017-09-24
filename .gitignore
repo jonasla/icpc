@@ -6,3 +6,7 @@
 *.out
 *.exe
 *.o
+*.aux
+*.log
+*.log
+*.toc

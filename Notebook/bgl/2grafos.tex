@@ -40,12 +40,40 @@ vector<tint> &distance, vector<vector<tint> > &parent)
 // En distance quedan las minimas distancias desde comienzo
 \end{code}
 
-\subsection{TopoSort (Jonaz)}
+\subsection{TopoSort y Kosaraju (Jonaz)}
 \begin{code}
-\end{code}
-
-\subsection{Kosaraju (Jonaz)}
-\begin{code}
+typedef vector<tint> vi;
+void dfsTopo(vector<vi> &g, tint s, vi &vis, vi &ord, vi &comp) {
+	vis[s] = true;
+	for(auto ad : g[s]) if (!vis[ad]) dfsTopo(g, ad, vis, ord, comp);
+	ord.push_back(s);
+	comp.push_back(s);
+}
+vi topoSort(vector<vi> &g) { // Devuelve el orden topologico
+  int N = g.size();
+  vi vis, ord, aux;
+	vis.assign(N, 0);
+	forn(i,N) if (!vis[i]) dfsTopo(g, i, vis, ord, aux);
+	reverse(ord.begin(), ord.end());
+  return ord;
+}
+// Devuelve las componentes en orden topologico
+vector<vi> kosaraju(vector<vi> &graf) { 
+	vi ord = topoSort(graf);
+  // Invertimos el grafo
+  tint N = graf.size();
+  vector<vi> grafInv(N, vi());
+  forn(i,N) for(auto j : graf[i]) grafInv[j].push_back(i);
+  
+  vi vis(N, false), aux;
+  vector<vi> comps;
+	for (auto o : ord)
+  if (!vis[o]) {
+    vi comp; dfsTopo(grafInv, o, vis, aux, comp);
+    comps.push_back(comp);
+  }
+	return comps;
+}
 \end{code}
 
 \subsection{2-SAT (Jonaz)}
