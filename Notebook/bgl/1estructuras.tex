@@ -11,20 +11,17 @@ time "./%e"
 \subsection{Fenwick Tree}
 \begin{code}
 // TRABAJAR CON UN VECTOR INDEXADO EN 1 EN "fenwick" (DE TAMANO N+1)
-void add (tint k, tint x, vector<tint> &fenwick) // Suma x al indice k 
-{
+void add (tint k, tint x, vector<tint> &fenwick) { // Suma x al indice k 
 	tint n = fenwick.size() -1;
-	while (k <= n)
-	{
+	while (k <= n) {
 		fenwick[k] += x;
 		k += (k & -k);
 	}
-}																																     (inclusive)
-tint sum (tint k, vector<tint> &fenwick) // Devuelve la suma en el rango [1..k] 
-{
+}
+// Devuelve la suma en el rango [1..k] (inclusive)
+tint sum (tint k, vector<tint> &fenwick) {
 	tint s = 0;
-	while (k >= 1)
-	{
+	while (k >= 1) {
 		s += fenwick[k];
 		k -= (k & -k);
 	}
@@ -77,21 +74,15 @@ bool buscar(string st) {
 \subsection{Segment Tree}
 \begin{code}
 // Nodo del segment tree
-struct Nodo
-{
+struct Nodo {
 	tint x;
-	Nodo (tint xx)
-	{
-		x = xx;
-	}
+	Nodo (tint xx) { x = xx; }
 };
 // Operacion del segment tree : tiene que ser ASOCIATIVA
-Nodo op (Nodo n1, Nodo n2)
-{
+Nodo op (Nodo n1, Nodo n2) {
 	return Nodo(n1.x+n2.x);
 }
-vector<Nodo> buildSegTree (vector<Nodo> &v )
-{
+vector<Nodo> buildSegTree (vector<Nodo> &v ) {
 	// Completa el tamanho
 	tint k = 4, n = v.size();
 	while (k < 2*n)
@@ -101,8 +92,7 @@ vector<Nodo> buildSegTree (vector<Nodo> &v )
 	forn(i,n)
 		seg[(k >> 1)+i] = v[i];
 	// Completa los padres
-	while (k > 0)
-	{
+	while (k > 0) {
 		seg[(k-1) >> 1] = op(seg[k-1],seg[k-2]);
 		k -= 2;
 	}	
@@ -110,18 +100,15 @@ vector<Nodo> buildSegTree (vector<Nodo> &v )
 }
 // i es el indice de [0,n) en el arreglo original
 // Nodo es lo que queremos poner ahora como hoja
-void update(tint i, Nodo nodo,vector<Nodo> &seg)
-{
+void update(tint i, Nodo nodo,vector<Nodo> &seg) {
 	tint k = seg.size()/2 + i;
 	seg[k] = nodo;
-	while (k > 0)
-	{
+	while (k > 0) {
 		seg[k >> 1] = op(seg[k],seg[k^1]);
 		k >>= 1;
 	}
 }
-Nodo queryAux(tint k, tint l, tint r, tint i, tint j, vector<Nodo> &seg)
-{	
+Nodo queryAux(tint k, tint l, tint r, tint i, tint j, vector<Nodo> &seg) {	
 	if (i <= l && r <= j)
 		return seg[k];
 	if (r <= i or l >= j)
@@ -132,13 +119,11 @@ Nodo queryAux(tint k, tint l, tint r, tint i, tint j, vector<Nodo> &seg)
 }
 // i,j son los indices del arreglo del que se hace la query
 // la query se hace en [i,j)
-Nodo query(tint i, tint j, vector<Nodo> &seg)
-{
+Nodo query(tint i, tint j, vector<Nodo> &seg) {
 	return queryAux(1,0,seg.size() >> 1,i,j,seg);
 }
 // USO:
-int main()
-{
+int main() {
 	tint n = 15;
 	vector<Nodo> v (n, Nodo(0));
 	forn(i,n)

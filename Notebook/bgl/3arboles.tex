@@ -7,20 +7,16 @@ vector<tint> caminito;
 tint representante[maxN];
 tint tamanho[maxN];
 
-void inicializar (tint n)
-{
-	forn(i,n)
-	{
+void inicializar (tint n) {
+	forn(i,n) {
 		representante[i] = i;
 		tamanho[i] = 1;
 	}
 }
 
-tint find (tint x)
-{
+tint find (tint x) {
 	caminito = {};
-	while (x != representante[x])
-	{
+	while (x != representante[x]) {
 		caminito.push_back(x);
 		x = representante[x];	
 	}
@@ -29,13 +25,9 @@ tint find (tint x)
 	return x;
 }
 
-bool same (tint a, tint b)
-{
-	return (find(a) == find(b));
-}
+bool same (tint a, tint b) { return (find(a) == find(b)); }
 
-void unite (tint a, tint b)
-{
+void unite (tint a, tint b) {
 	a = find(a);
 	b = find(b);
 	if (tamanho[a] < tamanho[b])
@@ -45,7 +37,7 @@ void unite (tint a, tint b)
 }
 \end{code}
 
-\subsection{Union-Find (Jonaz) Union by Rank \& Path ompression}
+\subsection{Union-Find (Jonaz)}
 \begin{code}
 class UF {
 private: vector<int> p, rank; int comps;
@@ -109,24 +101,19 @@ tint d[maxN]; // profundidad
 pair<tint,tint> p[maxN][maxK]; 
 // {ancestro a distancia 2^k, Lo que queremos entre los 2^k ancestros}
 
-void dfs(tint actual, vector<vector<pair<tint,tint> > > &ladj, tint padre)
-{
+void dfs(tint actual, vector<vector<pair<tint,tint> > > &ladj, tint padre) {
 	d[actual] = d[padre]+1;
 	for (auto x : ladj[actual])
-		if (x.first != padre)
-		{
+		if (x.first != padre) {
 			p[x.first][0] = {actual,x.second};
 			dfs(x.first,ladj,actual);
 		}
 }
 
-tint subir(tint a, tint c, tint &ans, bool tomaMinimo)
-{
+tint subir(tint a, tint c, tint &ans, bool tomaMinimo) {
 	tint k = 0;
-	while (c > 0)
-	{
-		if (c % 2)
-		{
+	while (c > 0) {
+		if (c % 2) {
 			if (tomaMinimo)
 				ans = min(ans,p[a][k].second);
 			a = p[a][k].first;
@@ -137,8 +124,7 @@ tint subir(tint a, tint c, tint &ans, bool tomaMinimo)
 	return a;
 }
 
-tint answer (tint a, tint b)
-{
+tint answer (tint a, tint b) {
 	// IGUALAMOS LAS ALTURAS
 	if (d[a] < d[b])
 		swap(a,b);
@@ -147,8 +133,7 @@ tint answer (tint a, tint b)
 	
 	// HACEMOS LA BINARY PARA BUSCAR EL LCA
 	tint cInf = 0, cSup = maxN; 
-	while (cSup - cInf > 1)
-	{
+	while (cSup - cInf > 1) {
 		tint ra = a, rb = b;
 		tint c = (cSup+cInf)/2;
 		ra = subir(ra,c,ans,false);
@@ -166,8 +151,7 @@ tint answer (tint a, tint b)
 }
 
 // INICIALIZACION
-int main()
-{
+int main() {
 	forn(i,maxN)
 	forn(k,maxK)
 		p[i][k] = {-1,NEUTRO};
@@ -177,8 +161,7 @@ int main()
 	dfs(0,ladj,0);
 	// LLENADO DE LA TABLA
 	forsn(k,1,maxK)	
-	forn(i,maxN)
-	{
+	forn(i,maxN) {
 		tint ancestro = p[i][k-1].first;
 		if (ancestro >= 0)
 			p[i][k] = {p[ancestro][k-1].first, 
