@@ -58,14 +58,76 @@ int main()
 
 \subsection{Euclides Extendido (Guty)}
 \begin{code}
+tint gcd ( int a, int b, int & x, int & y )
+{
+	if ( a == 0 ) 
+	{
+		x = 0 ; y = 1 ;
+		return b ;
+	}
+	tint x1, y1 ;
+	tint d = gcd ( b % a, a, x1, y1 ) ;
+	x = y1 - ( b / a ) * x1 ;
+	y = x1 ;
+	return d;
+} 
+
+// Nota si gcd(a,m) == 1 => 1 = a*x+m*y => 1 = a*x (mod m)
+// O sea, que "x" es el inverso :-)
+
 \end{code}
 
-\subsection{Teorema Chino del Resto (Guty)}
+\subsection{Eliminacion Gaussiana (Código ruso)}
 \begin{code}
-\end{code}
+// Declarar EPS e INF al principio adecuadamente.
+tint gauss ( vector < vector < double > > a, vector < double > & ans ) {
+	tint n = a. size ( ) ;
+	tint m = a[0].size() -1;
+	vector<tint> where (m, -1);
+	for ( tint col = 0, row = 0 ; col < m && row < n; ++col)
+	{
+		int sel = row ;
+		for ( tint i = row ; i < n ; ++i)
+			if ( abs (a[i][col]) > abs (a[sel][col]) )
+				sel = i ;
+		if ( abs(a[sel][col]) < EPS )
+			continue ;
+		for ( tint i = col ; i <= m ; ++i)
+			swap (a[sel][i], a[row][i]);
+		where [col] = row;
+		for ( tint i = 0 ; i < n ; ++i)
+			if ( i ! = row ) 
+			{
+				ldouble c = a[i][col] / a[row][col] ;
+				for ( tint j = col ; j <= m ; ++ j)
+					a[i][j] -= a[row][j] * c;
+			}
+		++row;
+	}
+ 
+	ans.assign(m, 0);
+	for ( tint i = 0 ; i < m ; ++ i )
+		if ( where[i] ! = - 1 )
+			ans [i] = a[where[i]][m] / a [where[i]][i];
+	for ( tint i = 0 ; i < n ; ++ i ) 
+	{
+		ldouble sum = 0 ;
+		for ( tint j = 0 ; j < m ; ++ j )
+			sum + = ans[j]*a[i][j];
+		if ( abs(sum - a[i][m] ) > EPS )
+			return 0 ;
+	}
+ 
+	for ( int i = 0 ; i < m ; ++ i )
+		if ( where[i] == - 1)
+			return INF ;
+	return 1 ;
+}
 
-\subsection{Eliminacion Gaussiana}
-\begin{code}
+// 0 -> No hay solucion
+// 1 -> Hay solucion unica. La devuelve en "ans"
+// INF -> Hay infinitas soluciones
+
 \end{code}
 
 \subsection{Rabin-Miller}

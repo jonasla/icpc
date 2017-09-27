@@ -1,5 +1,23 @@
 \section{Varios}
 
+\subsection{Operaciones de bits}
+
+\begin{code}
+
+__builtin_clz(x) // the number of zeros at the beginning of the number
+__builtin_ctz(x) // the number of zeros at the end of the number
+__builtin_popcount(x)  // the number of ones in the number
+__builtin_parity(x) // the parity (even or odd) of the number of ones
+
+// Iterar sobre el subconjunto de la mascara "x"
+int b = 0;
+do 
+{
+	// process subset b
+} while (b=(b-x)&x);
+
+\end{code}
+
 \subsection{Longest Incresing Subsequence (LIS)}
 \begin{code}
 tint LIS(vector<tint> &v) {
@@ -47,7 +65,7 @@ void rotar (vector<string> &origi)
 }
 \end{code}
 
-\subsection{Random + Imprimir Doubles}
+\subsection{Random + Imprimir Doubles + Leading Zeroes}
 \begin{code}
 #include <iostream>
 #include <random>
@@ -64,6 +82,8 @@ int main()
 {
 	cout <<  dis1(gen) << "\n";
 	cout <<  fixed << showpoint << setprecision(16) << dis2(gen) << "\n";
+	cout << setfill('0') << setw(10) << 12345 << "\n"; // 0000012345
+
 	return 0;
 }
 \end{code}
