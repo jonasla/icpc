@@ -22,8 +22,29 @@ string toString (tint number)
 }
 \end{code}
 
-\subsection{Tablita de Bordes (Jonaz)}
+\subsection{Tablita de Bordes}
 \begin{code}
+// Complejidad O(N)
+// Devuelve arreglo, en la posicion i la longitud del maximo borde hasta st[i]. 
+// En el ejemplo "abracadabra" devuelve 0 0 0 1 0 1 0 1 2 3 4 
+vector<int> calcularBordes(string st) {
+	int i=1, j=0, n=st.size();
+	vector<int> bordes(n, 0);
+	while(i<n) {
+		while(j>0 && st[i] != st[j])
+			j = bordes[j-1];
+		if (st[i] == st[j])
+			j++;
+		bordes[i++] = j;
+	}
+	return bordes;
+}
+// String Matching con Bordes: 
+// Concatenar S+'$'+T (donde $ no aparece en S ni T) 
+// S chico, T grande
+// Calcular bordes, siempre que el borde maximo para alguna 
+// posicion correspondiente a T sea de longitud |S| 
+// entonces hay un substring en T que coincide con S. 
 \end{code}
 
 \subsection{Knuth-Morris-Pratt (KMP) (Jonaz)}
