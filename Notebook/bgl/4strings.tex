@@ -51,8 +51,31 @@ vector<int> calcularBordes(string st) {
 \begin{code}
 \end{code}
 
-\subsection{Subsecuencia Comun mas larga (Guty o Jonaz)}
+\subsection{Subsecuencia Comun mas larga}
 \begin{code}
+const tint maxN = 128;
+
+tint p[maxN][maxN];
+// Llamar lcs(s1,s2,n,m)
+tint lcs(string &s1, string &s2,tint i,tint j)
+{
+	if (p[i][j] == -1)
+	{
+		if (i == 0 or j == 0)
+		p[i][j] = 0;
+		else
+		{
+			if (s1[i-1] == s2[j-1])
+			p[i][j] = 1 + lcs(s1,s2,i-1,j-1);
+			else
+			{
+				p[i][j] = max(p[i][j],lcs(s1,s2,i-1,j));
+				p[i][j] = max(p[i][j],lcs(s1,s2,i,j-1));
+			}
+		}
+	}
+	return p[i][j];
+}
 \end{code}
 
 \subsection{Edit-Distance}
