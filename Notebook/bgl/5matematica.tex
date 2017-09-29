@@ -92,7 +92,8 @@ pair<tint,tint> tcr (vector<tint> &r, vector<tint> &m) // x = r_i (mod m_i)
 		if (p % d)
 		return {-1,-1}; // sistema incompatible
 		q = (q / d)*m[i];
-		p = modulo(r[i]+m[i]*x*(p/d), q);
+		p = modulo(r[i]+m[i]*x*(p/d), q); //  OVERFLOW?: __int128 o mult()
+		// modulo(r[i]+modulo(modulo(m[i]*x,q)*(p/d),q), q); 
 	}
 	return {p,q}; // x = p (mod q)
 }
