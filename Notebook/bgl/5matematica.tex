@@ -56,9 +56,9 @@ int main()
 }
 \end{code}
 
-\subsection{Euclides Extendido (Guty)}
+\subsection{Euclides Extendido}
 \begin{code}
-tint gcd ( int a, int b, int & x, int & y )
+tint gcd (tint a, tint b, tint &x, tint &y)
 {
 	if ( a == 0 ) 
 	{
@@ -66,16 +66,40 @@ tint gcd ( int a, int b, int & x, int & y )
 		return b ;
 	}
 	tint x1, y1 ;
-	tint d = gcd ( b % a, a, x1, y1 ) ;
+	tint d = gcd (b % a, a, x1, y1) ;
 	x = y1 - ( b / a ) * x1 ;
 	y = x1 ;
 	return d;
 } 
 
 // Nota si gcd(a,m) == 1 => 1 = a*x+m*y => 1 = a*x (mod m)
-// O sea, que "x" es el inverso :-)
+// O sea, que "x" es el inverso de "a" modulo "m"
 
 \end{code}
+
+\subsection{Teorema Chino del Resto}
+
+\begin{code}
+
+pair<tint,tint> tcr (vector<tint> &r, vector<tint> &m) // x = r_i (mod m_i)
+{
+	tint p = 0, q = 1, n = r.size();
+	forn(i,n)
+	{
+		p = modulo(p-r[i],q);
+		tint x,y;
+		tint d = gcd(m[i],q,x,y);
+		if (p % d)
+		return {-1,-1}; // sistema incompatible
+		q = (q / d)*m[i];
+		p = modulo(r[i]+m[i]*x*(p/d), q);
+	}
+	return {p,q}; // x = p (mod q)
+}
+
+
+\end{code}
+
 
 \subsection{Eliminacion Gaussiana (Código ruso)}
 \begin{code}
@@ -94,9 +118,9 @@ tint gauss ( vector < vector < double > > a, vector < double > & ans ) {
 			continue ;
 		for ( tint i = col ; i <= m ; ++i)
 			swap (a[sel][i], a[row][i]);
-		where [col] = row;
+		where[col] = row;
 		for ( tint i = 0 ; i < n ; ++i)
-			if ( i ! = row ) 
+			if ( i != row ) 
 			{
 				ldouble c = a[i][col] / a[row][col] ;
 				for ( tint j = col ; j <= m ; ++ j)
@@ -106,14 +130,14 @@ tint gauss ( vector < vector < double > > a, vector < double > & ans ) {
 	}
  
 	ans.assign(m, 0);
-	for ( tint i = 0 ; i < m ; ++ i )
-		if ( where[i] ! = - 1 )
+	for ( tint i = 0 ; i < m ; ++i )
+		if ( where[i] != - 1 )
 			ans [i] = a[where[i]][m] / a [where[i]][i];
-	for ( tint i = 0 ; i < n ; ++ i ) 
+	for ( tint i = 0 ; i < n ; ++i ) 
 	{
 		ldouble sum = 0 ;
-		for ( tint j = 0 ; j < m ; ++ j )
-			sum + = ans[j]*a[i][j];
+		for ( tint j = 0 ; j < m ; ++j )
+			sum += ans[j]*a[i][j];
 		if ( abs(sum - a[i][m] ) > EPS )
 			return 0 ;
 	}
