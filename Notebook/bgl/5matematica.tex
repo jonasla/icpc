@@ -56,6 +56,39 @@ int main()
 }
 \end{code}
 
+\subsection{Numero Combinatorio}
+
+\begin{code}
+const tint maxN = 1024;
+
+tint binom[maxN][maxN];
+
+tint comb(tint n, tint m)
+{
+	if (m < 0 or m > n)
+	return 0;
+	if (m == 0 or m == n)
+	return 1;
+	if (n >= maxN)
+	return comb(n-1,m-1) + comb(n-1,m);
+	if (binom[n][m] == -1)
+	binom[n][m] = comb(n-1,m-1) + comb(n-1,m);
+	return binom[n][m];
+}
+
+// En el main:
+//	forn(i,maxN)
+//	forn(j,maxN)
+//		binom[i][j] = -1;
+
+tint nBolasEnkCajas (tint n, tint k)
+{
+	return comb(n+k-1,n);
+}
+
+\end{code}
+
+
 \subsection{Euclides Extendido}
 \begin{code}
 tint gcd (tint a, tint b, tint &x, tint &y)
