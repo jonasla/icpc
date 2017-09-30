@@ -22,33 +22,80 @@ string toString (tint number)
 }
 \end{code}
 
-\subsection{Tablita de Bordes}
-\begin{code}
-// Complejidad O(N)
-// Devuelve arreglo, en la posicion i la longitud del maximo borde hasta st[i]. 
-// En el ejemplo "abracadabra" devuelve 0 0 0 1 0 1 0 1 2 3 4 
-vector<int> calcularBordes(string st) {
-	int i=1, j=0, n=st.size();
-	vector<int> bordes(n, 0);
-	while(i<n) {
-		while(j>0 && st[i] != st[j])
-			j = bordes[j-1];
-		if (st[i] == st[j])
-			j++;
-		bordes[i++] = j;
-	}
-	return bordes;
-}
-// String Matching con Bordes: 
-// Concatenar S+'$'+T (donde $ no aparece en S ni T) 
-// S chico, T grande
-// Calcular bordes, siempre que el borde maximo para alguna 
-// posicion correspondiente a T sea de longitud |S| 
-// entonces hay un substring en T que coincide con S. 
-\end{code}
+%~ \subsection{Tablita de Bordes}
+%~ \begin{code}
+%~ // Complejidad O(N)
+%~ // Devuelve arreglo, en la posicion i la longitud del maximo borde hasta st[i]. 
+%~ // En el ejemplo "abracadabra" devuelve 0 0 0 1 0 1 0 1 2 3 4 
+%~ vector<int> calcularBordes(string st) {
+	%~ int i=1, j=0, n=st.size();
+	%~ vector<int> bordes(n, 0);
+	%~ while(i<n) {
+		%~ while(j>0 && st[i] != st[j])
+			%~ j = bordes[j-1];
+		%~ if (st[i] == st[j])
+			%~ j++;
+		%~ bordes[i++] = j;
+	%~ }
+	%~ return bordes;
+%~ }
+%~ // String Matching con Bordes: 
+%~ // Concatenar S+'$'+T (donde $ no aparece en S ni T) 
+%~ // S chico, T grande
+%~ // Calcular bordes, siempre que el borde maximo para alguna 
+%~ // posicion correspondiente a T sea de longitud |S| 
+%~ // entonces hay un substring en T que coincide con S. 
+%~ \end{code}
 
-\subsection{Knuth-Morris-Pratt (KMP) (Jonaz)}
+\subsection{Bordes \& Knuth-Morris-Pratt (KMP)}
 \begin{code}
+const int MAXN = 1e7;
+int kmp_table[MAXN];
+string s, t;
+// Deja en kmp_table[i] el borde de longitud i de s
+// en kmp_table[s.size()] el maximo borde
+void fill_table() {
+	int pos = 2, cnd = 0;
+	kmp_table[0] = -1;
+	kmp_table[1] = 0;
+	while(pos <= int(s.size())) {
+		if (s[pos-1] == s[cnd]) 
+			kmp_table[pos++] = ++cnd;
+		else if (cnd>0) 
+			cnd = kmp_table[cnd];
+		else kmp_table[pos++] = 0;
+	}
+}
+// Matchear s (chico) en t (grande)
+// Devuelve todos los indices donde matchea
+vector<int> kmp2() {
+	vector<int> r;
+	int m = 0, i = 0;
+	while(m+i < int(t.size())) {
+		if (s[i] == t[m+i]) {
+			if (i == int(s.size()-1)) r.push_back(m);
+			i++;
+		} else {
+			m = m + i - kmp_table[i];
+			if (kmp_table[i] > -1) i = kmp_table[i];
+			else i = 0;
+		}
+	}
+	return r;
+}
+
+int main() {
+	s = "abracadabra";
+	fill_table();
+	for(int i=0; i<int(s.size()+1); i++) cout << kmp_table[i] << " ";
+	cout << endl; // -1 0 0 0 1 0 1 0 1 2 3 4 
+	s = "abra";
+	fill_table();
+	t = "abracadabracadabra";
+	for(auto e : kmp2()) cout << e << " ";
+	cout << endl; // 0 7 14
+	return 0;
+}
 \end{code}
 
 \subsection{Subsecuencia Comun mas larga}
