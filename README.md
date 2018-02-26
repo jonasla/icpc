@@ -1,3 +1,18 @@
-# Repo de Buen Guiso #
+# "Buen Guiso de Lentejas"
+FCEN, UBA. 
 
-Lo pibe' de Buen Guiso usan este repo para guardar los simulacros y toda la data piola que les pinta guardar.
+## ACM-ICPC algorithms and contests
+
+We are "Buen Guiso de Lentejas", ICPC team from the FCEN-UBA, Argentina. 
+
+We use this repository to save different contests and algorithms. 
+
+---
+
+### **Buen Guiso de Lentejas** is
+
+Martín **B**lufstein
+
+Facundo Martín **G**utiérrez
+
+Jonas **L**evy
